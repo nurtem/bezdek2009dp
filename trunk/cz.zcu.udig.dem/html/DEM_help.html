@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <meta content="text/html; charset=windows-1250" http-equiv="content-type">
+
+
+
+
+
+  
+  
+  
+  
+  
+  <title>DEM - help</title>
+</head>
+
+
+<body>
+
+
+
+
+
+<big><span style="font-weight: bold;"></span></big>
+<h1><img style="width: 32px; height: 32px;" src="images/ico.gif" alt="" hspace="15" vspace="5"> &nbsp;<span style="text-decoration: underline;">DEM - Digital Elevation Model</span></h1>
+
+
+
+
+
+
+DEM is tool which provides some 3D spatial operations:<br>
+
+
+
+<div style="text-align: left; margin-left: 40px;">
+<ul>
+
+
+
+
+
+  <li><span style="font-weight: bold;">creating TIN (Triangulated Iregullar Network)</span></li>
+
+
+
+
+
+  <li>
+    
+    <span style="font-weight: bold;">creating izolines from TIN</span>
+    
+    
+    <h1><img src="images/dialog.png" alt=""></h1>
+
+
+  </li>
+
+
+
+
+
+</ul>
+
+
+
+</div>
+
+
+
+<div style="text-align: left;">
+<div style="margin-left: 40px;"><big><span style="font-weight: bold;">1. TIN<br>
+
+
+
+<small>1.1 Source</small></span></big></div>
+
+
+
+</div>
+
+
+
+<div style="text-align: left; margin-left: 40px;">At first you must create TIN. At the left side of toolbox you must choose source<span style="font-weight: bold;"> <span style="font-style: italic;">points layer</span></span>. TIN will be counted in 2D from geometry (X,Y<span style="font-style: italic;"> coordinates</span>) of shapefile. Coordinate Z you must choose from attribute table of the same shapefile. This is cell <span style="font-weight: bold;"><span style="font-style: italic;">height source.&nbsp; </span></span><big><span style="font-weight: bold;"><br>
+
+
+
+</span></big><span style="font-weight: bold;"><br>
+
+
+
+1.2 Break Lines<br>
+
+
+
+</span>At this part you may set layer of break lines. <span style="font-weight: bold; font-style: italic;">Hard break lines </span>are lines, where the surface will have sharp break. <span style="font-style: italic;"><span style="font-weight: bold;">Soft break lines </span></span>are lines, where surface will have soft break as crest line. <br>
+
+
+
+Attention: input layer of break lines has to contains lines which have
+same points as the source points layer. If the input break line doesn't
+contain same points, it will not be counted to final TIN.<br>
+
+
+
+<br>
+
+
+
+If you have selected sources, you may use button <span style="font-weight: bold; font-style: italic;">Count TIN </span>and new TIN will be add as a new temporary layer.&nbsp;If you want to save it as shapefile, you must export it.<br>
+
+
+
+<br>
+
+
+
+<big><span style="font-weight: bold;">2. Surface creator</span></big><big><small><big><big><small><small><img style="width: 220px; height: 127px; float: right;" alt="curvedTriangles" src="images/curvedpntriangles.png" hspace="30"></small></small></big></big></small></big><br>
+
+
+
+<big><span style="font-weight: bold;"><small>2.1 Izolines<br>
+
+
+
+<big><big><span style="font-weight: bold;"></span></big></big></small></span><small><big><big><small><small>When
+you have comlpleted TIN, you may count izolines. At first you must set
+a level of dividing triangles as you can see at the picture. Number of
+triangles determines&nbsp; level of smoothing surface. Be carefull,
+because when you set high level, the data structure will be
+monstrous.&nbsp;&nbsp; <br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">2.2 Set elevated difference</span><br>
+
+
+
+Last step of exctracting izolines is setting of elevated difference
+between neighbour izolines. Unit is same as height source. Standart value for it
+is 10.<br>
+
+
+
+<br>
+
+
+
+</small></small></big></big></small></big>If you have all selected, you may use button <span style="font-weight: bold; font-style: italic;">Count Izolines </span>and new izolines will be add as a new temporary layer.&nbsp;If you want to save it as shapefile, you must export it.<br>
+
+
+
+<br>
+
+
+
+have a nice work :)<br>
+
+
+
+<br>
+
+
+
+<big><small><big><big><small><small><br>
+
+
+
+<br>
+
+
+
+<br>
+
+
+
+</small></small></big></big></small></big><big><span style="font-weight: bold;"><small><br>
+
+
+
+</small></span></big><span style="font-weight: bold; font-style: italic;"></span><br>
+
+
+
+&nbsp;<br>
+
+
+
+<br>
+
+
+
+
+
+</div>
+
+
+
+
+
+</body>
+</html>
