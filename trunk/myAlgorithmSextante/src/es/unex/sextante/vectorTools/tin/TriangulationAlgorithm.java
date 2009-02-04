@@ -21,7 +21,7 @@ public class TriangulationAlgorithm extends GeoAlgorithm{
 	public static final String RESULT = "RESULT";
 
 	public boolean processAlgorithm() throws GeoAlgorithmExecutionException{
-
+ 
 		int i = 0;
 
 		IVectorLayer layerIn = m_Parameters.getParameterValueAsVectorLayer(LAYER);
