@@ -47,7 +47,7 @@ public class TriangulationAlgorithm extends GeoAlgorithm{
 
 	public void defineCharacteristics(){
 
-		setName(Sextante.getText( "TriangulationMY"));
+		setName(Sextante.getText( "Triangulation"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 
 		try {
