@@ -138,7 +138,7 @@ public class IncrementalDT_DEMO {
 		  * 
 		  * triangles.createShapefile(String path, String File, String EPSG code);
 		  */
-		 triangles.createShapefile("", "TINoriginal.shp","EPSG: 2065");
+		// triangles.createShapefile("", "TINoriginal.shp","EPSG: 2065");
 	 
 		 
 		 
@@ -150,7 +150,7 @@ public class IncrementalDT_DEMO {
 		  *   this method returns corrected TIN
 		  */
 		 triangles = TINWithFixedLines.countTIN(triangles,fixedLines);
-		 triangles.createShapefile("", "TINWithFL","");
+	//	 triangles.createShapefile("", "TINWithFL","");
 
 		 /***************************************************************
 		  * for creating izolines module LinearContourLines is used
