@@ -37,7 +37,7 @@ public class TriangleDT implements Serializable {
 	public double[] key;
 	public double[][] neighbour_idx = new double [3][2];
 	public boolean haveBreakLine = false;
-	
+	public byte typeBreakLine = -1;
 	/***************************************************************************
 	 * Constructor
 	 * 

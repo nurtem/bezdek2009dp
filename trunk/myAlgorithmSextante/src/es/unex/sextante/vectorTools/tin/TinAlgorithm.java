@@ -101,7 +101,7 @@ public class TinAlgorithm extends GeoAlgorithm {
 		IFeatureIterator iter = m_Points.iterator();
 		
 		IFeature feature = iter.next();
-		if (m_useGeometry_Z || feature.getRecord().getValue(m_iClass).getClass().toString().compareTo("class org.geotools.feature.type.NumericAttributeType")==0){
+		if (m_useGeometry_Z || !(feature.getRecord().getValue(m_iClass).getClass().toString().compareTo("class org.geotools.feature.type.NumericAttributeType")==0)){
 			iter = m_Points.iterator();
 			while(iter.hasNext() && setProgress(i, iShapeCount)){
 				feature = iter.next();
