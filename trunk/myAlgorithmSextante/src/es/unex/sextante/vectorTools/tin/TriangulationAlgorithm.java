@@ -31,10 +31,11 @@ public class TriangulationAlgorithm extends GeoAlgorithm {
 	private int m_iClass;
 	private IVectorLayer m_Triangles;
 	private Coordinate[] m_Coords;
+	private boolean m_bUseGeometryZ;
 
 	public void defineCharacteristics() {
 
-		setName(Sextante.getText( "TIN creator"));
+		setName(Sextante.getText( "Delaunay Triangulation BEZDA"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 		setGeneratesUserDefinedRasterOutput(false);
 
@@ -44,7 +45,9 @@ public class TriangulationAlgorithm extends GeoAlgorithm {
 											AdditionalInfoVectorLayer.SHAPE_TYPE_POINT,
 											true);
 
-			m_Parameters.addTableField("FIELD", "set height:", "POINTS");
+		
+			
+			m_Parameters.addTableField("FIELD", "height source:", "POINTS");
 
 			addOutputVectorLayer(TRIANGLES,
 											Sextante.getText( "Resultado"),
