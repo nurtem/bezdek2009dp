@@ -21,30 +21,32 @@ package org.geotools.delaunay.fixedlines;
  */
 
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.geotools.delaunay.DelaunayDataStoreRAM;
+import org.geotools.delaunay.IncrementalDT;
+import org.geotools.delaunay.LineDT;
 import org.geotools.delaunay.PointDT;
 import org.geotools.delaunay.TriangleDT;
-import org.geotools.delaunay.LineDT;
-import org.geotools.delaunay.IncrementalDT;
-import org.geotools.delaunay.DelaunayDataStoreRAM;
-import org.geotools.delaunay.DelaunayDataStore;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
+import org.geotools.index.Data;
+import org.geotools.index.DataDefinition;
+import org.geotools.index.rtree.RTree;
 
-import java.util.TreeMap;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import com.vividsolutions.jts.index.strtree.STRtree;
 
 public class TINWithFixedLines {
-	static DelaunayDataStore triangles;	// list of TIN triangles
+	static RTree trianglesIdx;
 	static LinkedList fixedLines;	// list of hard lines
 	static LineDT line;
-	
+	static ArrayList triangles;
 	/***100
 	   * The private method for searching a triangle which are intersect by new hard line
 	   *
@@ -52,63 +54,78 @@ public class TINWithFixedLines {
 	   */			
 	
 	private static LinkedList getTrianglesIntersectLine(){
+		Data data;
+		int index = 0;
 		LinkedList trianglesToChange = new LinkedList();
-		TriangleDT T = new TriangleDT();
+		List trianglesOverEnvelopeIdx = null;
 		boolean containA = false;
 		boolean containB = false;
 		
 		Coordinate[] newPoints={line.A,line.B}; 	// creating new geometry of line
 		CoordinateArraySequence newPointP=new CoordinateArraySequence(newPoints);
 		LineString newL=new LineString(newPointP,new GeometryFactory());
+		
+		try{
+			trianglesOverEnvelopeIdx = (List) trianglesIdx.search(newL.getEnvelopeInternal());
+		//	LinkedList trianglesOverEnvelope = new LinkedList();
+			System.out.println("JEEEEE TAAAM"+trianglesOverEnvelopeIdx.size());
 
-		//System.out.println();
-		for (int i=0; i<triangles.getNumberOfTriangles();i++){
-			T = triangles.getTriangle(i);
-			if (T!=null) 
+		Iterator iter = trianglesOverEnvelopeIdx.iterator();
+		while (iter.hasNext()){
+			index = (Integer)((Data) iter.next()).getValue(0);
+			
+			System.out.println(index);
+			if (triangles.get(index)!=null){
+				TriangleDT T = (TriangleDT) triangles.get(index);
+				//T.toStringa();
+				if (!containA&&(T.containsPointAsVertex(line.A))){
+					containA = true;
+					line.A.z = setZ(line.A,T);
+				}
+				if (!containA&&(T.containsPointAsVertex(line.B))){
+					containB = true;
+					line.B.z = setZ(line.B,T);
+
+				}
 				if (T.containsLine(newL)){	// test if line intersect triangle
-					//triangles.delete(T.key);
+					triangles.set(index, null);
 					trianglesToChange.add(T);
 				}
 				else{	// test if line or vertex is containg in triangle
 					if (lineContainsPoint(newL, T.A)&&!T.A.compare(line.A)&&!T.A.compare(line.B)){
-						//triangles.delete(T.key);
+						triangles.set(index, null);
 						trianglesToChange.add(T);
 					}
 					else{
-					if (lineContainsPoint(newL, T.B)&&!T.B.compare(line.A)&&!T.B.compare(line.B)){
-						//triangles.delete(T.key);
-						trianglesToChange.add(T);
-					}
-					else{
-						if (lineContainsPoint(newL, T.C)&&!T.C.compare(line.A)&&!T.C.compare(line.B)){
-							//triangles.delete(T.key);
+						if (lineContainsPoint(newL, T.B)&&!T.B.compare(line.A)&&!T.B.compare(line.B)){
+							triangles.set(index, null);
 							trianglesToChange.add(T);
 						}
+						else{
+							if (lineContainsPoint(newL, T.C)&&!T.C.compare(line.A)&&!T.C.compare(line.B)){
+								triangles.set(index, null);;
+								trianglesToChange.add(T);
+							}
+						}	
 					}	
 				}	
+		
 			}
+		}	
 		}
-		Iterator iter = trianglesToChange.iterator();
-		while (iter.hasNext()){
-			TriangleDT TT = (TriangleDT) iter.next();
-			if (!containA&&(TT.containsPointAsVertex(line.A))){
-				containA = true;
-				line.A.z = setZ(line.A,TT);
-			}
-			if (!containA&&(TT.containsPointAsVertex(line.B))){
-				containB = true;
-				line.B.z = setZ(line.B,TT);
-
-			}
+		catch(Exception e){
+			e.printStackTrace();
 		}
 		if ((containA == false)||(containB == false)){
-			trianglesToChange = new LinkedList();
+			
+			System.out.println("CRACI NULL");
+			System.out.println(trianglesToChange.size());
+			System.out.println(containA);
+			System.out.println(containB);
+			
+			return null;
+			
 		}
-		iter = trianglesToChange.iterator();
-		while (iter.hasNext()){
-			TriangleDT TT = (TriangleDT) iter.next();
-			triangles.delete(TT.key);
-		}	
 		return trianglesToChange;
 		
 		
@@ -174,8 +191,8 @@ public class TINWithFixedLines {
 	   *    
 	   */		
 	
-	private static LinkedList getPoints(LinkedList triangles, PointDT A, PointDT B){
-		Iterator iter = triangles.iterator();
+	private static LinkedList getPoints(LinkedList trianglesT, PointDT A, PointDT B){
+		Iterator iter = trianglesT.iterator();
 		LinkedList points = new LinkedList();
 		TriangleDT T = (TriangleDT) iter.next();
 		points.add(T.A);
@@ -233,6 +250,11 @@ public class TINWithFixedLines {
 	
 	private static void testAndAddTrianglesToTIN(LinkedList left, LinkedList right, LinkedList trianglesToChange, LineDT line){
 		TriangleDT T;
+		Data data;
+		DataDefinition dd = new DataDefinition("US-ASCII"); 
+		dd.addField(Integer.class);
+		
+		int i = triangles.size();
 		if (left!=null){						//test leve triangulace
 			Iterator it = left.iterator();
 			
@@ -241,7 +263,16 @@ public class TINWithFixedLines {
 				if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
 					T.haveBreakLine = true;
 				if (testIsInside(T, trianglesToChange)){
-					triangles.insertToTree(T, T.key);				//vlozeni do celkove triangulace
+					try{
+						data = new Data(dd);
+						data.addValue(i);
+						trianglesIdx.insert(T.getEnvelope(), data);
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+					triangles.add(i, T);				//vlozeni do celkove triangulace
+					i++;
 				}
 			}
 		}
@@ -252,7 +283,16 @@ public class TINWithFixedLines {
 				if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
 					T.haveBreakLine = true;
 				if (testIsInside(T, trianglesToChange)){
-					triangles.insertToTree(T, T.key);				//vlozeni do celkove triangulace
+					try{
+						data = new Data(dd);
+						data.addValue(i);
+						trianglesIdx.insert(T.getEnvelope(), data);
+					}
+					catch(Exception e){
+						e.printStackTrace();
+					}
+					triangles.add(i, T);				//vlozeni do celkove triangulace
+					i++;
 				}
 				
 			}
@@ -270,9 +310,10 @@ public class TINWithFixedLines {
 	   */		
 	
 	
-	public static DelaunayDataStore countTIN(DelaunayDataStore trianglesDT, LinkedList fixedLinesDT){
+	public static ArrayList countTIN(ArrayList trianglesDT, RTree trianglesDTIdx, LinkedList fixedLinesDT){
 					// list pevnych hran
 		triangles = trianglesDT;
+		trianglesIdx = trianglesDTIdx;
 		fixedLines = fixedLinesDT;
 		
 		Iterator iter = fixedLines.iterator();
@@ -300,7 +341,7 @@ public class TINWithFixedLines {
 			trianglesToChange = getTrianglesIntersectLine();	// getting triangles which intersect fixed line
 			
 			
-			if (trianglesToChange.size() != 0){
+			if ((trianglesToChange!=null)&&trianglesToChange.size() != 0){
 				points = getPoints(trianglesToChange, line.A, line.B);	// getting points from intersect triangles
 			
 																	// counting angle of turning, identity transformation
@@ -315,7 +356,7 @@ public class TINWithFixedLines {
 				while (it.hasNext()){			
 					P = (PointDT)it.next();
 					yTrans = Math.cos(alfa)*P.y + Math.sin(alfa)*P.x;		// identity transformation
-					xTrans = Math.cos(alfa)*P.x - Math.sin(alfa)*P.y;
+					//xTrans = Math.cos(alfa)*P.x - Math.sin(alfa)*P.y;
 					if (yTrans>=yTransNullPoints-0.002){
 						leftPoints.add(P);
 					}

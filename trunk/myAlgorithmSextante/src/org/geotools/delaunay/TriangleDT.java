@@ -336,10 +336,10 @@ public class TriangleDT implements Serializable {
 	}
 	
 	/************************************************************************
-	 * Protected method for setting envelope of triangle
+	 * Protected method for getting envelope of triangle
 	 * @return envelope of triangle
 	 */
-	public Envelope setEnvelope() {
+	public Envelope getEnvelope() {
 		Coordinate[] newPoint = new Coordinate[4];
 		newPoint[0] = A;
 		newPoint[1] = B;

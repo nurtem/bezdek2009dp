@@ -43,9 +43,9 @@ public class TinAlgorithm extends GeoAlgorithm {
 	public static final String HEIGHT = "HEIGHT";
 	public static final String GEOMETRY_Z = "GEOMETRY_Z";
 
-	private IVectorLayer m_Points;
-	private IVectorLayer m_Triangles;
-	private Coordinate[] m_Coords;
+	private IVectorLayer m_Points = null;
+	private IVectorLayer m_Triangles = null;
+	private Coordinate[] m_Coords = null;
 	private int m_iClass;
 	private boolean m_useGeometry_Z;
 
@@ -101,11 +101,15 @@ public class TinAlgorithm extends GeoAlgorithm {
 		IFeatureIterator iter = m_Points.iterator();
 		
 		IFeature feature = iter.next();
-		if (m_useGeometry_Z || !(feature.getRecord().getValue(m_iClass).getClass().toString().compareTo("class org.geotools.feature.type.NumericAttributeType")==0)){
+		//System.out.println(feature.getRecord().getValue(m_iClass).getClass().toString());
+		String classType = feature.getRecord().getValue(m_iClass).getClass().toString();
+		if (m_useGeometry_Z || (!(classType.compareTo("class java.lang.Integer")==0) && !(classType.compareTo("class java.lang.Double")==0) )){
 			iter = m_Points.iterator();
 			while(iter.hasNext() && setProgress(i, iShapeCount)){
 				feature = iter.next();
-				m_Coords[i] = feature.getGeometry().getCoordinate();
+				m_Coords[i] = new Coordinate(feature.getGeometry().getCoordinate());
+			//	System.out.println(m_Coords[i].z);
+			//	System.out.println(m_Coords[i].toString());
 				i++;
 			}
 			iter.close();
@@ -116,8 +120,10 @@ public class TinAlgorithm extends GeoAlgorithm {
 				feature = iter.next();
 				Coordinate coord = feature.getGeometry().getCoordinate();
 				String Z = feature.getRecord().getValue(m_iClass).toString();
+				
 				coord.z = Double.valueOf(Z);
-				m_Coords[i] = coord;
+				m_Coords[i] = new Coordinate(coord);
+			//	System.out.println("aa"+m_Coords[i].toString());
 				i++;
 			}
 			iter.close();
@@ -133,6 +139,8 @@ public class TinAlgorithm extends GeoAlgorithm {
 			Object[] record = {new Integer(j)};
 			Geometry triangle = getPolygon(triangles[j]);
 			if (triangle != null){
+			//	System.out.println(triangle.toString());
+				
 				m_Triangles.addFeature(triangle, record);
 			}
 		}
@@ -149,6 +157,7 @@ public class TinAlgorithm extends GeoAlgorithm {
 		for (int i = 0; i < 3; i++) {
 			try{
 				coords[i] = m_Coords[triangle.ppp[i].i];
+			//	System.out.println(m_Coords[triangle.ppp[i].i]);
 			}catch (Exception e){
 				return null;
 			}

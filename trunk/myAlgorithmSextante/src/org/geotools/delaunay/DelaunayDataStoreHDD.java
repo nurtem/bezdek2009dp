@@ -373,7 +373,7 @@ public class DelaunayDataStoreHDD implements DelaunayDataStore {
 				if (T!=null){
 					data = new Data(dd);
 					data.addValue(numberOfTriangles);
-					rt.insert(T.setEnvelope(), data);
+					rt.insert(T.getEnvelope(), data);
 				}
 			}	
 		}

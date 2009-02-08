@@ -375,7 +375,7 @@ public class DelaunayDataStoreRAM implements DelaunayDataStore {
 				if (T!=null){
 					data = new Data(dd);
 					data.addValue(i);
-					rt.insert(T.setEnvelope(), data);
+					rt.insert(T.getEnvelope(), data);
 				}
 			}	
 		}
