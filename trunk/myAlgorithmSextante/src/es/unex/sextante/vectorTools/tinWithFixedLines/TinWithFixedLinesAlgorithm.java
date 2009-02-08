@@ -1,9 +1,9 @@
 package es.unex.sextante.vectorTools.tinWithFixedLines;
 
-import java.util.Collection;
 import java.util.LinkedList;
 
 import org.geotools.delaunay.DelaunayDataStore;
+import org.geotools.delaunay.DelaunayDataStoreRAM;
 import org.geotools.delaunay.LineDT;
 import org.geotools.delaunay.PointDT;
 import org.geotools.delaunay.TriangleDT;
@@ -14,6 +14,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 import es.unex.sextante.additionalInfo.AdditionalInfoVectorLayer;
 import es.unex.sextante.core.GeoAlgorithm;
@@ -34,9 +35,11 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 	
 	
 	private IVectorLayer m_Triangles;
+	private IVectorLayer m_TrianglesOut;
+	
 	private IVectorLayer m_HardLines;
 	private IVectorLayer m_SoftLines;
-	private DelaunayDataStore triangles;
+	private DelaunayDataStore triangles = new DelaunayDataStoreRAM();
 	private int m_iClass;
 	private boolean m_useHardLines;
 	private boolean m_useSoftLines;
@@ -44,7 +47,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 	
 	public void defineCharacteristics() {
 
-		setName(Sextante.getText( "TIN modify by fixed lines"));
+		setName(Sextante.getText( "TIN modified by fixed lines"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 		setGeneratesUserDefinedRasterOutput(false);
 
@@ -93,27 +96,29 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		m_useHardLines = m_Parameters.getParameterValueAsBoolean(HARDLINES_B);
 		
 		
-		Class types[] = {Integer.class,char.class,byte.class};
-		String sNames[] = {"ID","BreakLines","Type"};
-		m_Triangles = getNewVectorLayer(TRIANGLES,
+		Class types[] = {Integer.class};
+		String sNames[] = {"ID"};
+		m_TrianglesOut = getNewVectorLayer(TRIANGLES,
 										m_Triangles.getName()+"_modified",
 										IVectorLayer.SHAPE_TYPE_POLYGON,
 										types,
 										sNames);
 
 		
-		i = 0;
+		
 		iShapeCount = m_Triangles.getShapesCount();
 		IFeatureIterator iter = m_Triangles.iterator();
-		while(iter.hasNext() && setProgress(i, iShapeCount)){
+		while(iter.hasNext()){
 			IFeature feature = iter.next();
-			LinearRing trianglePolygon = (LinearRing) feature.getGeometry();
+			Polygon trianglePolygon = (Polygon) feature.getGeometry();
 			Coordinate[] coords = trianglePolygon.getCoordinates();
 			TriangleDT triangle = new TriangleDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
 											new PointDT(coords[1].x,coords[1].y,coords[1].z),
 											new PointDT(coords[2].x,coords[2].y,coords[2].z));
+			triangle.toStringa();
+			System.out.println("AHOOOOOOOOOOOOOOOK:");
 			triangles.insertToTree(triangle, triangle.key);
-			i++;
+		
 		}
 		iter.close();
 		
@@ -167,7 +172,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 			//	triangles.getTriangle(j).toStringa();
 				Geometry triangle = getPolygon(triangles.getTriangle(j));
 				if (triangle != null){
-					m_Triangles.addFeature(triangle, record);
+					m_TrianglesOut.addFeature(triangle, record);
 				}
 			}
 		}
