@@ -42,11 +42,17 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
+import es.unex.sextante.vectorTools.delaunay.Triangulation;
+import es.unex.sextante.vectorTools.delaunay.Triangulation.Triangle;
+
 public class TINWithFixedLines {
 	static RTree trianglesIdx;
 	static LinkedList fixedLines;	// list of hard lines
 	static LineDT line;
 	static ArrayList triangles;
+	static Data data;
+	static DataDefinition dd = new DataDefinition("US-ASCII");
+
 	/***100
 	   * The private method for searching a triangle which are intersect by new hard line
 	   *
@@ -54,7 +60,7 @@ public class TINWithFixedLines {
 	   */			
 	
 	private static LinkedList getTrianglesIntersectLine(){
-		Data data;
+		dd.addField(Integer.class);
 		int index = 0;
 		LinkedList trianglesToChange = new LinkedList();
 		List trianglesOverEnvelopeIdx = null;
@@ -82,7 +88,7 @@ public class TINWithFixedLines {
 					containA = true;
 					line.A.z = setZ(line.A,T);
 				}
-				if (!containA&&(T.containsPointAsVertex(line.B))){
+				if (!containB&&(T.containsPointAsVertex(line.B))){
 					containB = true;
 					line.B.z = setZ(line.B,T);
 
@@ -117,7 +123,20 @@ public class TINWithFixedLines {
 			e.printStackTrace();
 		}
 		if ((containA == false)||(containB == false)){
-			
+			try{
+				int i = triangles.size();
+				Iterator iter = trianglesToChange.iterator();
+				while(iter.hasNext()){
+					TriangleDT T = (TriangleDT) iter.next();
+					data = new Data(dd);
+					data.addValue(i);
+					trianglesIdx.insert(T.getEnvelope(), data);
+					triangles.add(i, T);				//vlozeni do celkove triangulace
+				}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
 			System.out.println("CRACI NULL");
 			System.out.println(trianglesToChange.size());
 			System.out.println(containA);
@@ -248,18 +267,28 @@ public class TINWithFixedLines {
 	   *	
 	   */		
 	
-	private static void testAndAddTrianglesToTIN(LinkedList left, LinkedList right, LinkedList trianglesToChange, LineDT line){
+/*	private static void testAndAddTrianglesToTIN(Triangle[] left, ArrayList leftPoints, Triangle[] right, ArrayList rightPoints, LinkedList trianglesToChange, LineDT line){
 		TriangleDT T;
 		Data data;
 		DataDefinition dd = new DataDefinition("US-ASCII"); 
 		dd.addField(Integer.class);
-		
 		int i = triangles.size();
 		if (left!=null){						//test leve triangulace
-			Iterator it = left.iterator();
-			
-			while (it.hasNext()){
-				T = (TriangleDT)it.next();
+			for (int j=0; j<left.length; j++){
+		
+				for (int k=0; k<3; k++);
+				try{
+					coords[i] = m_Coords[triangle.ppp[i].i];
+				//	System.out.println(m_Coords[triangle.ppp[i].i]);
+				}catch (Exception e){
+					return null;
+				}
+				
+				TriangleDT T = new TriangleDT((Coordinate)(leftPoints.get(left[j].ppp[0].0)),
+												(Coordinate)(leftPoints.get(left[j].ppp[2].1)),
+												(Coordinate)(leftPoints.get(left[j].ppp[2].2));
+				
+				
 				if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
 					T.haveBreakLine = true;
 				if (testIsInside(T, trianglesToChange)){
@@ -298,6 +327,21 @@ public class TINWithFixedLines {
 			}
 		}
 
+	}*/
+	
+	public static TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
+		Coordinate[] coords = new Coordinate[3];
+
+		for (int i = 0; i < 3; i++) {
+			try{
+				coords[i] = (Coordinate)pointsTriangulated.get(triangle.ppp[i].i);
+			//	System.out.println(m_Coords[triangle.ppp[i].i]);
+			}catch (Exception e){
+				return null;
+			}
+			
+		}
+		return new TriangleDT(coords);
 	}
 	
 	/***
@@ -317,15 +361,13 @@ public class TINWithFixedLines {
 		fixedLines = fixedLinesDT;
 		
 		Iterator iter = fixedLines.iterator();
+		ArrayList leftPoints;				// body nad primkou
+		ArrayList rightPoints;			// body pod primkou
 							// pomocna linie
 		LinkedList trianglesToChange;  //nalezene trojuhelniky pres ktere prochazi linie
 		LinkedList points; 				// body kterych se budou nove triangulovat
-		LinkedList leftPoints;				// body nad primkou
-		LinkedList rightPoints;			// body pod primkou
-		IncrementalDT lTIN;				// triangulace na primkou
-		IncrementalDT rTIN;				// triangulace pod primkou
-		LinkedList leftTIN;				// TIN nad primkou 
-		LinkedList rightTIN;			// TIN pod primkou
+		Triangle[] leftTIN;				// TIN nad primkou 
+		Triangle[] rightTIN;			// TIN pod primkou
 		PointDT P;						// pomocny bod
 		double alfa;					// uhel, ktery svira pevna hrana s osou x
 		double yTrans,xTrans;			// transfomovane souradnice (shodnostni transformace
@@ -333,11 +375,9 @@ public class TINWithFixedLines {
 		while (iter.hasNext()){			//cyklus pro pevne hrany
 			leftTIN = null;
 			rightTIN = null;
+			leftPoints = new ArrayList();
+			rightPoints = new ArrayList();
 			line = (LineDT) iter.next();
-			leftPoints = new LinkedList();
-			rightPoints = new LinkedList();
-			
-			
 			trianglesToChange = getTrianglesIntersectLine();	// getting triangles which intersect fixed line
 			
 			
@@ -352,49 +392,111 @@ public class TINWithFixedLines {
 			
 				double yTransNullPoints = Math.cos(alfa)*line.A.y + Math.sin(alfa)*line.A.x;	// getting value y which sorting left and righ triangulation
 				Iterator it = points.iterator();
-			
+				
 				while (it.hasNext()){			
 					P = (PointDT)it.next();
 					yTrans = Math.cos(alfa)*P.y + Math.sin(alfa)*P.x;		// identity transformation
 					//xTrans = Math.cos(alfa)*P.x - Math.sin(alfa)*P.y;
-					if (yTrans>=yTransNullPoints-0.002){
-						leftPoints.add(P);
+					if (yTrans>=yTransNullPoints-0.0000001){
+						leftPoints.add(new Coordinate(P.x,P.y,P.z));
 					}
-					if (yTrans<=yTransNullPoints+0.002){
-						rightPoints.add(P);
+					if (yTrans<=yTransNullPoints+0.0000001){
+						rightPoints.add(new Coordinate(P.x,P.y,P.z));
 					}
 				}
 				
-				DelaunayDataStoreRAM lTriangles = new DelaunayDataStoreRAM();
-				lTIN = new IncrementalDT(lTriangles);    	// counting left triangulation
+				int i = triangles.size();
 				if (!leftPoints.isEmpty()){
+					
+					leftPoints.add(new Coordinate(line.A.x, line.A.y, line.A.z));
+					leftPoints.add(new Coordinate(line.B.x, line.B.y, line.B.z));
+					Coordinate[] coordsLeft = new Coordinate[leftPoints.size()];
 					it = leftPoints.iterator();
+					int index = 0;
 					while (it.hasNext()){
-						P = (PointDT)it.next();
-						lTIN.insertPoint(P);
+						coordsLeft[index] = (Coordinate)it.next();
+						System.out.println(coordsLeft[index].toString());
+						index++;
 					}
-			
-					lTIN.insertPoint(line.A);
-					lTIN.insertPoint(line.B);
-					leftTIN = (LinkedList)lTriangles.getCollection();
-				}
-				DelaunayDataStoreRAM rTriangles = new DelaunayDataStoreRAM();
-				rTIN = new IncrementalDT(rTriangles);		// counting right triangulation
+					
+					Triangulation triangulation = new Triangulation(coordsLeft, new int[0][0]);
+					triangulation.triangulate();
+					leftTIN = triangulation.getTriangles();
+					
+					for (int j=0; j<leftTIN.length; j++){
+						TriangleDT T = getTriangle(leftTIN[j], leftPoints);
+						System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
+						if (T!=null){
+							T.toStringa();
+							if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
+								T.haveBreakLine = true;
+							if (testIsInside(T, trianglesToChange)){
+								try{
+									data = new Data(dd);
+									data.addValue(i);
+									System.out.println("VSTUpuje>   "+i);
+									System.out.println(T.getEnvelope().toString());
+									
+									trianglesIdx.insert(T.getEnvelope(), data);
+								}
+								catch(Exception e){
+									e.printStackTrace();
+								}
+								triangles.add(i, T);				//vlozeni do celkove triangulace
+								i++;
+							}
+						}
+					}
+				}	
 				if (!rightPoints.isEmpty()){
-				
+
+					rightPoints.add(new Coordinate(line.A.x, line.A.y, line.A.z));
+					rightPoints.add(new Coordinate(line.B.x, line.B.y, line.B.z));
+					Coordinate[] coordsRight = new Coordinate[rightPoints.size()];
+					int index = 0;
 					it = rightPoints.iterator();
 					while (it.hasNext()){
-						P =(PointDT)it.next();
-						rTIN.insertPoint(P);
+						coordsRight[index] = (Coordinate)it.next();
+						System.out.println(coordsRight[index].toString());
+						index++;
 					}
-				
-					rTIN.insertPoint(line.A);
-					rTIN.insertPoint(line.B);
-					rightTIN = (LinkedList)rTriangles.getCollection();
+					
+	
+					
+					Triangulation triangulation = new Triangulation(coordsRight, new int[0][0]);
+					triangulation.triangulate();
+					rightTIN = triangulation.getTriangles();
+					for (int j=0; j<rightTIN.length; j++){
+						System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
+						TriangleDT T = getTriangle(rightTIN[j], rightPoints);
+						if (T!=null){
+							T.toStringa();
+							if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
+								T.haveBreakLine = true;
+							if (testIsInside(T, trianglesToChange)){
+								try{
+									data = new Data(dd);
+									data.addValue(i);
+									System.out.println("VSTUpuje>   "+i);
+									System.out.println(T.getEnvelope().toString());
+									trianglesIdx.insert(T.getEnvelope(), data);
+								}
+								catch(Exception e){
+									e.printStackTrace();
+								}
+								triangles.add(i, T);				//vlozeni do celkove triangulace
+								i++;
+							}
+						}
+					}
 				}
+				
+				/// create new triangles
+				
+				
 			
 					//test newlz formed triangles if inside shape
-				testAndAddTrianglesToTIN(leftTIN, rightTIN, trianglesToChange, line);
+			//	testAndAddTrianglesToTIN(leftTIN, leftPoints, rightTIN, rightPoints, trianglesToChange, line);
 			}
 		}
 		return triangles;

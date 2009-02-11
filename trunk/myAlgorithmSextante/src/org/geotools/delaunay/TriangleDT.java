@@ -107,6 +107,13 @@ public class TriangleDT implements Serializable {
 		setKey();
 	}
 
+	public TriangleDT(Coordinate[] coords) {
+		this.A = new PointDT(coords[0].x, coords[0].y, coords[0].z);
+		this.B = new PointDT(coords[1].x, coords[1].y, coords[1].z);
+		this.C = new PointDT(coords[2].x, coords[2].y, coords[2].z);
+		setKey();
+	}
+
 
 	/***************************************************************************
 	 * implicit Constructor

@@ -154,9 +154,12 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				IFeature feature = iter.next();
 				LineString lineString = (LineString) feature.getGeometry();
 				Coordinate[] coords = lineString.getCoordinates();
-				LineDT softLine = new LineDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
-					new PointDT(coords[1].x,coords[1].y,coords[1].z), false);
-				breakLines.add(softLine);
+				LineDT softLine = null;
+				for (int j=1; j< coords.length; j++){
+					softLine = new LineDT(new PointDT(coords[j-1].x,coords[j-1].y,0),
+							new PointDT(coords[j].x,coords[j].y,0), false);
+					breakLines.add(softLine);
+				}
 				i++;
 			}
 			iter.close();
@@ -173,9 +176,12 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				IFeature feature = iter.next();
 				LineString lineString = (LineString) feature.getGeometry();
 				Coordinate[] coords = lineString.getCoordinates();
-				LineDT hardLine = new LineDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
-					new PointDT(coords[1].x,coords[1].y,coords[1].z), true);
-				breakLines.add(hardLine);
+				LineDT hardLine = null;
+				for (int j=1; j< coords.length; j++){
+					hardLine = new LineDT(new PointDT(coords[j-1].x,coords[j-1].y,0),
+							new PointDT(coords[j].x,coords[j].y,0), true);
+					breakLines.add(hardLine);
+				}
 				i++;
 			}
 			iter.close();
