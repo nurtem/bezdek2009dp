@@ -23,10 +23,8 @@
 package org.geotools.delaunay.contourlines;
 
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 import org.geotools.delaunay.PointDT;
 import org.geotools.delaunay.TriangleDT;
@@ -34,6 +32,7 @@ import org.geotools.delaunay.TriangleDT;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class LinearContourLines {
+	static LinkedList contours = new LinkedList();
 	
 	/************************************************************************
 	 * Private function which generetes izolines from triangle with defined elevated Step
@@ -41,12 +40,14 @@ public class LinearContourLines {
 	 * @param elevatedStep - int elevated step
 	 * @return linked list of extract izolines
 	 */
-	public static LinkedList countIzoLines(TriangleDT T, double elevatedStep){
+	private static LinkedList countIzoLines(TriangleDT T, double elevatedStep){
+		Double maxIso = Double.POSITIVE_INFINITY;
+		Double minIso = Double.NEGATIVE_INFINITY;
 		Double minZ = new Double(0);
 		Double maxZ = new Double(0);
 		PointDT startIZO = null;
 		PointDT stopIZO = null;
-		LinkedList contours = new LinkedList();
+		
 		double elev = Double.NEGATIVE_INFINITY;
 				minZ = T.A.z;
 				maxZ = T.A.z;
@@ -87,13 +88,23 @@ public class LinearContourLines {
 					}
 					
 					contours.add(new Izolines(startIZO,stopIZO,(int)elev));	//}
+					
+					if (elev>maxIso)
+						maxIso = elev;
+					else
+						if (elev<minIso)
+							minIso = elev;
+					
 					startIZO = null;
 					stopIZO = null;
 					elev = elev + elevatedStep;
 					
 					}
-				return contours;
+				LinkedList finalIsolines = sortIsolines(contours, minIso, maxIso, elevatedStep);
+				return finalIsolines;
 			}
+	
+	
 	
 	
 
@@ -119,33 +130,63 @@ public class LinearContourLines {
 		}
 	}
 	
+	
+	
 	private static LinkedList sortIsolines(LinkedList isolines, double minIso, double maxIso, double elevatedStep){
 		int numberOfIsolines = Double.valueOf((maxIso-minIso)/elevatedStep).intValue();
-		TreeSet[] treeIndex = new TreeSet[numberOfIsolines];
-		ArrayList contours = new ArrayList();
+		BinaryTree[] treeIndex = new BinaryTree[numberOfIsolines];
 		Iterator iter = isolines.iterator();
-		
-		
+				
 		while(iter.hasNext()){
 			Izolines izo = (Izolines)iter.next();
 			int elevIndex = new Double(izo.elevation/elevatedStep).intValue();
 			Coordinate coordA = (Coordinate)izo.A;
-			if (!treeIndex[elevIndex].contains(coordA)){
-				treeIndex[elevIndex].add(coordA);
-			}			else{
-				treeIndex[elevIndex].remove(coordA);
-			}
 			Coordinate coordB = (Coordinate)izo.B;
-			if (!treeIndex[elevIndex].contains(coordB)){
-				treeIndex[elevIndex].add(coordB);
-			}
+			LinkedList izoA = null;
+			LinkedList izoB = null;
+			
+			izoA = (LinkedList) treeIndex[elevIndex].search(coordA);
+			izoB = (LinkedList) treeIndex[elevIndex].search(coordB);
+		
+			if (izoA == null && izoB == null){
+				LinkedList izoList = new LinkedList();
+				izoList.add(coordA);
+				izoList.add(coordB);
+				treeIndex[elevIndex].insert(coordA, izoList);
+				treeIndex[elevIndex].insert(coordB, izoList);
+			}		
 			else{
-				
-			}
+				if (izoA == izoB){
+					treeIndex[elevIndex].remove(coordA);
+				}
+				else{
+					if (izoA != null){
+						treeIndex[elevIndex].remove(coordA);
+						if (coordA.compareTo((Coordinate)izoA.getFirst()) == 1)
+							izoA.addFirst(coordB);
+						else
+							izoA.addLast(coordB);
+						treeIndex[elevIndex].insert(coordB, izoA);
+					}
+					else{
+						treeIndex[elevIndex].remove(coordB);
+						if (coordB.compareTo((Coordinate)izoB.getFirst()) == 1)
+							izoA.addFirst(coordA);
+						else
+							izoA.addLast(coordA);
+						treeIndex[elevIndex].insert(coordA, izoB);
+					}
+				}
+			}	
+		}
+		/// convert to linestring:
+		LinkedList finalIsolines = new LinkedList();
+		for (int i = 0; i < numberOfIsolines; i++){
+			finalIsolines.addAll(treeIndex[i].getIsolines());
 		}
 		
+		return finalIsolines;
 		
-		return null;
 	}
 	
 	

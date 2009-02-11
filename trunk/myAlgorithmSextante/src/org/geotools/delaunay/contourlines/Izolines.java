@@ -17,16 +17,13 @@
  *	  @version     %I%, %G%
  *    @since JDK1.3 
  */
-
-
-
 package org.geotools.delaunay.contourlines;
 
 import org.geotools.delaunay.PointDT;
 
 import com.vividsolutions.jts.geom.LineString;
 
-public class Izolines extends LineString{
+public class Izolines {
 	// start point of triangle
 	public PointDT A;
 	// end point of triangle
