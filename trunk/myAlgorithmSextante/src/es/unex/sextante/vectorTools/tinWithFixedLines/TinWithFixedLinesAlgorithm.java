@@ -101,8 +101,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		m_useHardLines = m_Parameters.getParameterValueAsBoolean(HARDLINES_B);
 		
 		
-		Class types[] = {Integer.class};
-		String sNames[] = {"ID"};
+		Class types[] = {Integer.class, Integer.class};
+		String sNames[] = {"ID","hardLine"};
 		m_TrianglesOut = getNewVectorLayer(TRIANGLES,
 										m_Triangles.getName()+"_modified",
 										IVectorLayer.SHAPE_TYPE_POLYGON,
@@ -193,7 +193,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 			int j = 0;
 			while(iterJ.hasNext()){
 				//System.out.println(i);
-				Object[] record = {new Integer(j)};
+				Object[] record = {new Integer(j),1};
 			//	triangles.getTriangle(j).toStringa();
 				TriangleDT trian = (TriangleDT) iterJ.next();
 				if (trian!=null){

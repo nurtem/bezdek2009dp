@@ -22,15 +22,17 @@
 
 package org.geotools.delaunay.contourlines;
 
-import org.geotools.delaunay.*;
+import org.geotools.delaunay.PointDT;
 
-public class Izolines {
+import com.vividsolutions.jts.geom.LineString;
+
+public class Izolines extends LineString{
 	// start point of triangle
 	public PointDT A;
 	// end point of triangle
 	public PointDT B;
 	// elevation
-	public int elevation;
+	public double elevation;
 	
 	/***********************************************************
 	 * Constructor 

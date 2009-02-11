@@ -23,10 +23,15 @@
 package org.geotools.delaunay.contourlines;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import org.geotools.delaunay.PointDT;
 import org.geotools.delaunay.TriangleDT;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 public class LinearContourLines {
 	
@@ -36,13 +41,13 @@ public class LinearContourLines {
 	 * @param elevatedStep - int elevated step
 	 * @return linked list of extract izolines
 	 */
-	public static LinkedList countIzoLines(TriangleDT T, int elevatedStep){
+	public static LinkedList countIzoLines(TriangleDT T, double elevatedStep){
 		Double minZ = new Double(0);
 		Double maxZ = new Double(0);
 		PointDT startIZO = null;
 		PointDT stopIZO = null;
 		LinkedList contours = new LinkedList();
-		double elev = -1000;
+		double elev = Double.NEGATIVE_INFINITY;
 				minZ = T.A.z;
 				maxZ = T.A.z;
 				if (minZ > T.B.z)
@@ -55,8 +60,15 @@ public class LinearContourLines {
 					maxZ = T.C.z;
 				elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
 				
-				elev = elev+0.0001;
-				
+				//TEST OF SINGULAR POINTS
+				if (T.A.z/elevatedStep == (int)T.A.z/elevatedStep)
+					T.A.z = T.A.z - Double.MIN_VALUE;
+				if (T.B.z/elevatedStep == (int)T.B.z/elevatedStep)
+					T.B.z = T.B.z - Double.MIN_VALUE;
+				if (T.C.z/elevatedStep == (int)T.C.z/elevatedStep)
+					T.C.z = T.C.z - Double.MIN_VALUE;
+						
+						
 				while (elev <= maxZ){
 					if (((T.A.z<=elev)&(T.B.z>=elev))||((T.A.z>=elev)&(T.B.z<=elev))){
 						startIZO = solveLinearInterpolation(T.A, T.B, elev);
@@ -106,6 +118,36 @@ public class LinearContourLines {
 			return  new PointDT((B.x+(A.x-B.x)*rate),(B.y+(A.y-B.y)*rate),elev);
 		}
 	}
+	
+	private static LinkedList sortIsolines(LinkedList isolines, double minIso, double maxIso, double elevatedStep){
+		int numberOfIsolines = Double.valueOf((maxIso-minIso)/elevatedStep).intValue();
+		TreeSet[] treeIndex = new TreeSet[numberOfIsolines];
+		ArrayList contours = new ArrayList();
+		Iterator iter = isolines.iterator();
+		
+		
+		while(iter.hasNext()){
+			Izolines izo = (Izolines)iter.next();
+			int elevIndex = new Double(izo.elevation/elevatedStep).intValue();
+			Coordinate coordA = (Coordinate)izo.A;
+			if (!treeIndex[elevIndex].contains(coordA)){
+				treeIndex[elevIndex].add(coordA);
+			}			else{
+				treeIndex[elevIndex].remove(coordA);
+			}
+			Coordinate coordB = (Coordinate)izo.B;
+			if (!treeIndex[elevIndex].contains(coordB)){
+				treeIndex[elevIndex].add(coordB);
+			}
+			else{
+				
+			}
+		}
+		
+		
+		return null;
+	}
+	
 	
 	/************************************************************************************
 	 * The method for creating shapefile of izolines

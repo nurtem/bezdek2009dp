@@ -60,7 +60,6 @@ public class TINWithFixedLines {
 	   */			
 	
 	private static LinkedList getTrianglesIntersectLine(){
-		dd.addField(Integer.class);
 		int index = 0;
 		LinkedList trianglesToChange = new LinkedList();
 		List trianglesOverEnvelopeIdx = null;
@@ -124,6 +123,7 @@ public class TINWithFixedLines {
 		}
 		if ((containA == false)||(containB == false)){
 			try{
+				System.out.println("TAK TED SE TO NEPOVEDLO =======================");
 				int i = triangles.size();
 				Iterator iter = trianglesToChange.iterator();
 				while(iter.hasNext()){
@@ -372,6 +372,7 @@ public class TINWithFixedLines {
 		double alfa;					// uhel, ktery svira pevna hrana s osou x
 		double yTrans,xTrans;			// transfomovane souradnice (shodnostni transformace
 										// uhel pooteceni alfa, posunuti 0 v x-ove i v y-ove ose
+		dd.addField(Integer.class);
 		while (iter.hasNext()){			//cyklus pro pevne hrany
 			leftTIN = null;
 			rightTIN = null;
