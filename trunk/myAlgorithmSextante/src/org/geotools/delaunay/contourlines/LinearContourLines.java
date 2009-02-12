@@ -23,6 +23,7 @@
 package org.geotools.delaunay.contourlines;
 
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -33,6 +34,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class LinearContourLines {
 	static LinkedList contours = new LinkedList();
+	static ArrayList finalIsolines  = new ArrayList();
+	static Double maxIso = Double.NEGATIVE_INFINITY;
+	static Double minIso = Double.POSITIVE_INFINITY;
+
 	
 	/************************************************************************
 	 * Private function which generetes izolines from triangle with defined elevated Step
@@ -40,9 +45,7 @@ public class LinearContourLines {
 	 * @param elevatedStep - int elevated step
 	 * @return linked list of extract izolines
 	 */
-	private static LinkedList countIzoLines(TriangleDT T, double elevatedStep){
-		Double maxIso = Double.POSITIVE_INFINITY;
-		Double minIso = Double.NEGATIVE_INFINITY;
+	private static void trianglesIsoLines(TriangleDT T, double elevatedStep){
 		Double minZ = new Double(0);
 		Double maxZ = new Double(0);
 		PointDT startIZO = null;
@@ -91,17 +94,16 @@ public class LinearContourLines {
 					
 					if (elev>maxIso)
 						maxIso = elev;
-					else
-						if (elev<minIso)
-							minIso = elev;
+					if (elev<minIso)
+						minIso = elev;
 					
 					startIZO = null;
 					stopIZO = null;
 					elev = elev + elevatedStep;
 					
 					}
-				LinkedList finalIsolines = sortIsolines(contours, minIso, maxIso, elevatedStep);
-				return finalIsolines;
+				//finalIsolines = sortIsolines(contours, minIso, maxIso, elevatedStep);
+				//return finalIsolines;
 			}
 	
 	
@@ -131,61 +133,138 @@ public class LinearContourLines {
 	}
 	
 	
+	public static ArrayList countIsolines(LinkedList triangles, Double elevatedStep){
+		Iterator iter = triangles.iterator();
+		while (iter.hasNext()){
+			trianglesIsoLines((TriangleDT) iter.next(),elevatedStep);
+		}
+		sortIsolines(contours, minIso, maxIso, elevatedStep);
+		return finalIsolines;
+	}
 	
-	private static LinkedList sortIsolines(LinkedList isolines, double minIso, double maxIso, double elevatedStep){
-		int numberOfIsolines = Double.valueOf((maxIso-minIso)/elevatedStep).intValue();
+	private static void sortIsolines(LinkedList isolines, double minIso, double maxIso, double elevatedStep){
+		int numberOfIsolines = Double.valueOf((maxIso-minIso)/elevatedStep).intValue()+1;
+		DVertex izoA = null;
+		DVertex izoB = null;
+
+		System.out.println("maxIso> "+maxIso+" minIso"+ minIso+ " elev"+ elevatedStep+" number "+numberOfIsolines);
 		BinaryTree[] treeIndex = new BinaryTree[numberOfIsolines];
 		Iterator iter = isolines.iterator();
-				
+		///active Binary tree
+		for (int i=0; i<numberOfIsolines; i++)
+			treeIndex[i] = new BinaryTree();
+		
 		while(iter.hasNext()){
 			Izolines izo = (Izolines)iter.next();
-			int elevIndex = new Double(izo.elevation/elevatedStep).intValue();
+			izo.toStringa();
+			int elevIndex = new Double((izo.elevation - minIso)/elevatedStep).intValue();
+			System.out.println(elevIndex);
 			Coordinate coordA = (Coordinate)izo.A;
 			Coordinate coordB = (Coordinate)izo.B;
-			LinkedList izoA = null;
-			LinkedList izoB = null;
 			
-			izoA = (LinkedList) treeIndex[elevIndex].search(coordA);
-			izoB = (LinkedList) treeIndex[elevIndex].search(coordB);
-		
+			izoA = (DVertex)  treeIndex[elevIndex].search(coordA);
+			izoB = (DVertex) treeIndex[elevIndex].search(coordB);
+			
 			if (izoA == null && izoB == null){
+				System.out.println("Delam novou izo:");
 				LinkedList izoList = new LinkedList();
 				izoList.add(coordA);
 				izoList.add(coordB);
-				treeIndex[elevIndex].insert(coordA, izoList);
-				treeIndex[elevIndex].insert(coordB, izoList);
+				
+				treeIndex[elevIndex].insert(coordA, new Integer(finalIsolines.size()),true);
+				treeIndex[elevIndex].insert(coordB, new Integer(finalIsolines.size()),false);
+				finalIsolines.add(finalIsolines.size(), izoList);
 			}		
 			else{
 				if (izoA == izoB){
 					treeIndex[elevIndex].remove(coordA);
+					treeIndex[elevIndex].remove(coordB);
+					LinkedList izoList = (LinkedList) finalIsolines.get(izoA.data);
+					if (((Coordinate)izoList.getLast()).compareTo(coordA)==1){
+						izoList.addFirst(coordA);
+					}
+					else
+						izoList.addLast(coordA);
+					System.out.println("rovnaji se");
 				}
 				else{
 					if (izoA != null){
-						treeIndex[elevIndex].remove(coordA);
-						if (coordA.compareTo((Coordinate)izoA.getFirst()) == 1)
-							izoA.addFirst(coordB);
-						else
-							izoA.addLast(coordB);
-						treeIndex[elevIndex].insert(coordB, izoA);
+						LinkedList izoList = (LinkedList) finalIsolines.get(izoA.data);
+						
+						if (izoB == null){
+							treeIndex[elevIndex].remove(coordA);
+							//Coordinate helpCoord = (Coordinate)izoList.getFirst();
+							if (izoA.first){
+								
+								System.out.println(coordA.toString());
+								System.out.println((Coordinate)izoList.getFirst());
+								izoList.addFirst(coordB);
+								treeIndex[elevIndex].insert(coordB, izoA.data, true);
+							}
+							else{
+								izoList.addLast(coordB);
+								treeIndex[elevIndex].insert(coordB, izoA.data, false);
+							}
+						}
+						else{
+							LinkedList izoListB = (LinkedList) finalIsolines.get(izoB.data);
+							Iterator iterIzoB = izoListB.iterator();
+							//Coordinate helpCoord = (Coordinate)izoList.getFirst();
+							if (izoA.first){
+								while (iterIzoB.hasNext()){
+									izoList.addFirst(iterIzoB.next());
+								}
+							}
+							else{
+								while (iterIzoB.hasNext()){
+								izoList.addLast(iterIzoB.next());
+								}
+								
+							}
+						}
 					}
 					else{
-						treeIndex[elevIndex].remove(coordB);
-						if (coordB.compareTo((Coordinate)izoB.getFirst()) == 1)
-							izoA.addFirst(coordA);
-						else
-							izoA.addLast(coordA);
-						treeIndex[elevIndex].insert(coordA, izoB);
+						LinkedList izoList = (LinkedList) finalIsolines.get(izoB.data);
+						
+						if (izoA == null){
+							treeIndex[elevIndex].remove(coordB);
+						//	Coordinate helpCoord = (Coordinate)izoList.getFirst();
+							if (izoB.first){
+								System.out.println(coordA.toString());
+								System.out.println((Coordinate)izoList.getFirst());
+	
+								izoList.addFirst(coordA);
+								treeIndex[elevIndex].insert(coordA, izoB.data, true);
+								
+							}	
+							else{
+								izoList.addLast(coordA);
+								treeIndex[elevIndex].insert(coordA, izoB.data, false);
+							}
+						}	
+						else{
+							LinkedList izoListA = (LinkedList) finalIsolines.get(izoB.data);
+							Iterator iterIzoA = izoListA.iterator();
+							//Coordinate helpCoord = (Coordinate)izoList.getFirst();
+							if (izoB.first){
+								while (iterIzoA.hasNext()){
+									izoList.addFirst(iterIzoA.next());
+								}
+							}
+							else{
+								while (iterIzoA.hasNext()){
+								izoList.addLast(iterIzoA.next());
+								}
+								
+							}
+						}	
 					}
 				}
 			}	
 		}
 		/// convert to linestring:
-		LinkedList finalIsolines = new LinkedList();
-		for (int i = 0; i < numberOfIsolines; i++){
-			finalIsolines.addAll(treeIndex[i].getIsolines());
-		}
 		
-		return finalIsolines;
+		//return finalIsolines;
 		
 	}
 	

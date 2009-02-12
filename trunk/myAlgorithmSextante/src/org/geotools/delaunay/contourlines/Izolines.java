@@ -42,4 +42,11 @@ public class Izolines {
 		this.B = B;
 		this.elevation = elevation;
 	}
+	
+	public void toStringa(){
+		System.out.println("___________________________ISO________________________________");
+		System.out.println(A.toString());
+		System.out.println(B.toString());
+		System.out.println("______________________________________________________________");
+	}
 }

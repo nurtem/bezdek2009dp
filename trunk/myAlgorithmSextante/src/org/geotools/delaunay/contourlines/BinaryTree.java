@@ -9,13 +9,15 @@ import com.vividsolutions.jts.geom.LineString;
 
 class DVertex {
 	Coordinate pointKey;
-	Object data;
+	Integer data;
 	DVertex left;
 	DVertex right;
+	Boolean first;
 	
-	DVertex (Coordinate pointKey, Object data){
+	DVertex (Coordinate pointKey, Integer data, Boolean first){
 		this.pointKey = pointKey;
 		this.data = data;
+		this.first = first;
 	}
 }
 
@@ -33,7 +35,7 @@ public class BinaryTree {
 			return null;
 		if (pointKey.x == v.pointKey.x){
 			if (pointKey.y == v.pointKey.y)
-				return v.data;
+				return v;
 			else
 				return searchV(v.left, pointKey);
 		}
@@ -43,7 +45,7 @@ public class BinaryTree {
 			return searchV(v.right, pointKey);
 	}
 	
-	public void insert(Coordinate pointKey, Object data){
+	public void insert(Coordinate pointKey, Integer data, Boolean first){
 		DVertex v = null;
 		DVertex vNext = root;
 		
@@ -54,7 +56,7 @@ public class BinaryTree {
 			else
 				vNext = vNext.right;
 		}
-		DVertex newVertex = new DVertex(pointKey, data);
+		DVertex newVertex = new DVertex(pointKey, data, first);
 		if (v == null)
 			root = newVertex;
 		else
@@ -87,7 +89,7 @@ public class BinaryTree {
 			x = y.right;
 	}
 	
-	private void preorder(DVertex v){
+/*	private void preorder(DVertex v){
 		if (v == null)
 			return;
 		
@@ -112,6 +114,6 @@ public class BinaryTree {
 		helpList = new LinkedList();
 		preorder(root);
 		return helpList;
-	}
+	}*/
 }
 
