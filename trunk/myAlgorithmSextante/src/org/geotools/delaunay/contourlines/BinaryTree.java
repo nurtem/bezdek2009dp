@@ -12,12 +12,12 @@ class DVertex {
 	Integer data;
 	DVertex left;
 	DVertex right;
-	Boolean first;
+	//Boolean first;
 	
-	DVertex (Coordinate pointKey, Integer data, Boolean first){
+	DVertex (Coordinate pointKey, Integer data){
 		this.pointKey = pointKey;
 		this.data = data;
-		this.first = first;
+	//	this.first = first;
 	}
 }
 
@@ -45,7 +45,7 @@ public class BinaryTree {
 			return searchV(v.right, pointKey);
 	}
 	
-	public void insert(Coordinate pointKey, Integer data, Boolean first){
+	public void insert(Coordinate pointKey, Integer data){
 		DVertex v = null;
 		DVertex vNext = root;
 		
@@ -56,7 +56,7 @@ public class BinaryTree {
 			else
 				vNext = vNext.right;
 		}
-		DVertex newVertex = new DVertex(pointKey, data, first);
+		DVertex newVertex = new DVertex(pointKey, data);
 		if (v == null)
 			root = newVertex;
 		else

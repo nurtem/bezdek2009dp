@@ -83,8 +83,8 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 				TriangleDT triangle = new TriangleDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
 						new PointDT(coords[1].x,coords[1].y,coords[1].z),
 						new PointDT(coords[2].x,coords[2].y,coords[2].z));
-				System.out.println(i);
-				triangle.toStringa();
+			//	System.out.println(i);
+			//	triangle.toStringa();
 				triangles.add(i, triangle);
 				i++;
 			}
@@ -94,31 +94,33 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 			e.printStackTrace();
 		}	
 	
-			double elevatedStep = 35;	
+			double elevatedStep = 10;	
 			ArrayList isolines = LinearContourLines.countIsolines(triangles,elevatedStep);
 			Iterator iterIso = isolines.iterator();
 			int j = 0;
-			while(iterIso.hasNext()){
-				//System.out.println(i);
-				Object[] record = {new Integer(j),1D};
-			//	triangles.getTriangle(j).toStringa();
-				GeometryFactory gf = new GeometryFactory();
-				LinkedList isoCoords = (LinkedList) iterIso.next();
-				Iterator iterCoords = isoCoords.iterator();
-				Coordinate[] coords = new Coordinate[isoCoords.size()];
-				int k = 0;
-				while (iterCoords.hasNext()){
-					coords[k] = (Coordinate)iterCoords.next();
-					k++;
+			
+			for (int l=0; l < isolines.size(); l++){
+				Object o = isolines.get(l);
+				if (o != null){
+					Object[] record = {new Integer(j),1D};
+					//	triangles.getTriangle(j).toStringa();
+					GeometryFactory gf = new GeometryFactory();
+					Iterator isoL = ((LinkedList)o).iterator();
+					Coordinate[] coords = new Coordinate[((LinkedList)o).size()];
+					
+					int k = 0;
+					while(isoL.hasNext()){
+						coords[k] = (Coordinate)isoL.next();
+						k++;
+					}	
+					LineString isoline = gf.createLineString(coords);
+					m_Isolines.addFeature(isoline, record);
+					j++;
+							
 				}
-				LineString isoline = gf.createLineString(coords);
-				
-				
-				m_Isolines.addFeature(isoline, record);
-				j++;
-				
 			}
-
+			
+		
 			System.out.println("AHOJ");
 		return !m_Task.isCanceled();
 
