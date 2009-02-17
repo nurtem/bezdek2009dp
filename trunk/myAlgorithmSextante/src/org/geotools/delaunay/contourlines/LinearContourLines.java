@@ -55,11 +55,11 @@ public class LinearContourLines {
 
 		//TEST OF SINGULAR POINTS
 		if (T.A.z/elevatedStep == (int)T.A.z/elevatedStep)
-			T.A.z = T.A.z + 0.0000000000001;//Float.MIN_VALUE;
+			T.A.z = T.A.z + T.A.z*0.001;//Float.MIN_VALUE;
 		if (T.B.z/elevatedStep == (int)T.B.z/elevatedStep)
-			T.B.z = T.B.z + 0.0000000000001;//Float.MIN_VALUE;
+			T.B.z = T.B.z + T.B.z*0.001;//Float.MIN_VALUE;
 		if (T.C.z/elevatedStep == (int)T.C.z/elevatedStep)
-			T.C.z = T.C.z + 0.0000000000001;//Float.MIN_VALUE;
+			T.C.z = T.C.z + T.C.z*0.001;//Float.MIN_VALUE;
 
 				minZ = T.A.z;
 				maxZ = T.A.z;
@@ -99,9 +99,13 @@ public class LinearContourLines {
 					contours.add(new Izolines(startIZO,stopIZO,(int)elev));	//}
 					
 					/////////////
-				//	Izolines i = new Izolines(startIZO,stopIZO,(int)elev);
-				//	i.toStringa();
-					/////////////
+			/*		if (startIZO.compare(stopIZO)){
+						Izolines i = new Izolines(startIZO,stopIZO,(int)elev);
+						T.toStringa();
+						i.toStringa();
+					}
+*/
+						/////////////
 					
 					if (elev>maxIso)
 						maxIso = elev;
@@ -171,7 +175,7 @@ public class LinearContourLines {
 			indexA = 0;
 			indexB = 0;
 			Izolines izo = (Izolines)iter.next();
-			izo.toStringa();
+		//	izo.toStringa();
 			int elevIndex = new Double((izo.elevation - minIso)/elevatedStep).intValue();
 	//		System.out.println(elevIndex);
 			Coordinate coordA = (Coordinate)izo.A;
@@ -187,7 +191,7 @@ public class LinearContourLines {
 			
 			switch (indexA + indexB){
 				case 0:{
-					System.out.println("Delam novou izo:");
+			//		System.out.println("Delam novou izo:");
 					LinkedList izoList = new LinkedList();
 					izoList.add(coordA);
 					izoList.add(coordB);
@@ -195,12 +199,12 @@ public class LinearContourLines {
 					treeIndex[elevIndex].insert(coordA, new Integer(finalIsolines.size()));
 					treeIndex[elevIndex].insert(coordB, new Integer(finalIsolines.size()));
 					finalIsolines.add(finalIsolines.size(), izoList);
-					System.out.println("oba jsou null  "+ finalIsolines.size());
+			//		System.out.println("oba jsou null  "+ finalIsolines.size());
 					break;
 				}
 				case 1:{
 					LinkedList izoList = (LinkedList) finalIsolines.get(izoA.data);
-					System.out.println("B je null");
+		//			System.out.println("B je null");
 			//		System.out.println(coordA.toString());
 			//		System.out.println(((Coordinate)izoList.getFirst()).toString());
 			//		System.out.println(((Coordinate)izoList.getFirst()).compareTo(coordA)==1);
@@ -223,7 +227,7 @@ public class LinearContourLines {
 					break;
 				}
 				case 2:{
-					System.out.println("A je null");
+			//		System.out.println("A je null");
 					LinkedList izoList = (LinkedList) finalIsolines.get(izoB.data);
 					treeIndex[elevIndex].remove(coordB);
 					//	Coordinate helpCoord = (Coordinate)izoList.getFirst();
@@ -243,10 +247,10 @@ public class LinearContourLines {
 				}
 				case 3:{
 					LinkedList izoList = (LinkedList) finalIsolines.get(izoA.data);
-					System.out.println("IZOA "+izoA.data+"    IZOB "+izoB.data);
+			//		System.out.println("IZOA "+izoA.data+"    IZOB "+izoB.data);
 
 					if ((izoA.data.intValue() == izoB.data.intValue())){
-						System.out.println("A i B stejny spojuje");
+					//	System.out.println("A i B stejny spojuje");
 	//					System.out.println("IZOA "+izoA.data+"    IZOB "+izoB.data);
 						treeIndex[elevIndex].remove(coordA);
 						treeIndex[elevIndex].remove(coordB);
@@ -267,7 +271,7 @@ public class LinearContourLines {
 
 					}
 					else{
-						System.out.println("A i B ale nejsou stejny");
+			//			System.out.println("A i B ale nejsou stejny");
 						LinkedList izoListB = (LinkedList) finalIsolines.get(izoB.data);
 						
 						
@@ -283,15 +287,15 @@ public class LinearContourLines {
 								Iterator iterIzoB = izoListB.iterator();
 								while (iterIzoB.hasNext()){
 									izoList.addFirst(iterIzoB.next());
-									System.out.println("prvni1  "+((Coordinate)izoList.getFirst()).toString());
+							//		System.out.println("prvni1  "+((Coordinate)izoList.getFirst()).toString());
 								}
 							}
 							else{
 								//izoList.addAll(0, izoListB);
 								Iterator iterIzoB = izoListB.descendingIterator();
 								while (iterIzoB.hasNext()){
-									izoList.addLast(iterIzoB.next());
-									System.out.println("prvni2");
+									izoList.addFirst(iterIzoB.next());
+						//			System.out.println("prvni2");
 								}
 							}
 						}
@@ -300,7 +304,7 @@ public class LinearContourLines {
 								Iterator iterIzoB = izoListB.iterator();
 								while (iterIzoB.hasNext()){
 									izoList.addLast(iterIzoB.next());
-									System.out.println("prvni3");
+						//			System.out.println("prvni3");
 								}
 							}
 							else{
@@ -308,15 +312,15 @@ public class LinearContourLines {
 								//izoList.addAll(izoListB);
 								while (iterIzoB.hasNext()){
 									izoList.addLast(iterIzoB.next());
-									System.out.println("prvni4");
+						//			System.out.println("prvni4");
 								}
 							}
 						
 						}
 						
-						System.out.println("TOJR TEN UDAJ" + finalIsolines.size());
+					//	System.out.println("TOJR TEN UDAJ" + finalIsolines.size());
 						finalIsolines.set(izoB.data, null);
-						System.out.println("TOJR TEN UDAJ" + finalIsolines.size());
+					//	System.out.println("TOJR TEN UDAJ" + finalIsolines.size());
 						((DVertex) treeIndex[elevIndex].search((Coordinate)izoList.getLast())).data = izoA.data;
 						((DVertex) treeIndex[elevIndex].search((Coordinate)izoList.getFirst())).data = izoA.data;
 
@@ -325,8 +329,8 @@ public class LinearContourLines {
 					treeIndex[elevIndex].remove(coordB);
 	
 				}
-			}
-		/*	System.out.println("VYPISUJE ISOLINIE====================================================");
+			}	
+				/*	System.out.println("VYPISUJE ISOLINIE====================================================");
 			for (int k=0; k<finalIsolines.size(); k++){
 				Object o = finalIsolines.get(k);
 				if (o!=null){

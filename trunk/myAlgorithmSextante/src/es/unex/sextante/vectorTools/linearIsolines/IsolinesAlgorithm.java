@@ -94,7 +94,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 			e.printStackTrace();
 		}	
 	
-			double elevatedStep = 10;	
+			double elevatedStep = 1;	
 			ArrayList isolines = LinearContourLines.countIsolines(triangles,elevatedStep);
 			Iterator iterIso = isolines.iterator();
 			int j = 0;
