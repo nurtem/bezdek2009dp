@@ -51,7 +51,7 @@ public class TinAlgorithm extends GeoAlgorithm {
 
 	public void defineCharacteristics() {
 
-		setName(Sextante.getText( "TIN creator"));
+		setName(Sextante.getText( "TIN - creating"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 		setGeneratesUserDefinedRasterOutput(false);
 

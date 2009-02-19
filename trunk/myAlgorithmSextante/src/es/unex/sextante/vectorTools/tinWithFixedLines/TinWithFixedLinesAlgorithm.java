@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.geotools.delaunay.LineDT;
-import org.geotools.delaunay.PointDT;
-import org.geotools.delaunay.TriangleDT;
-import org.geotools.delaunay.fixedlines.TINWithFixedLines;
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
 import org.geotools.index.rtree.PageStore;
@@ -52,7 +48,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 	
 	public void defineCharacteristics() {
 
-		setName(Sextante.getText( "TIN modified by fixed lines"));
+		setName(Sextante.getText( "TIN - modified by fixed lines"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 		setGeneratesUserDefinedRasterOutput(false);
 
@@ -62,6 +58,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 											AdditionalInfoVectorLayer.SHAPE_TYPE_POLYGON,
 											true);
 
+			//m_Parameters.
+			
 			m_Parameters.addInputVectorLayer(HARDLINES,
 					Sextante.getText( "Hard break lines:"),
 					AdditionalInfoVectorLayer.SHAPE_TYPE_LINE,
@@ -101,8 +99,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		m_useHardLines = m_Parameters.getParameterValueAsBoolean(HARDLINES_B);
 		
 		
-		Class types[] = {Integer.class, Integer.class};
-		String sNames[] = {"ID","hardLine"};
+		Class types[] = {Integer.class, String.class, Integer.class};
+		String sNames[] = {"ID", "HardLines", "type"};
 		m_TrianglesOut = getNewVectorLayer(TRIANGLES,
 										m_Triangles.getName()+"_modified",
 										IVectorLayer.SHAPE_TYPE_POLYGON,
@@ -191,12 +189,20 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 			triangles = TINWithFixedLines.countTIN(triangles, trianglesIdx, breakLines);
 			Iterator iterJ = triangles.iterator();
 			int j = 0;
+						
 			while(iterJ.hasNext()){
-				//System.out.println(i);
-				Object[] record = {new Integer(j),1};
-			//	triangles.getTriangle(j).toStringa();
 				TriangleDT trian = (TriangleDT) iterJ.next();
+				//System.out.println(i);
 				if (trian!=null){
+					Object[] record = {new Integer(j),"", trian.typeBreakLine};
+					if (trian.haveBreakLine){
+						record[0] = new Integer(j);
+						record[1] = "breakLine";
+						record[2] = trian.typeBreakLine;
+					}
+					//	triangles.getTriangle(j).toStringa();
+				
+				
 					Geometry triangle = getPolygon(trian);
 					//System.out.println(triangle.toString());
 						m_TrianglesOut.addFeature(triangle, record);
