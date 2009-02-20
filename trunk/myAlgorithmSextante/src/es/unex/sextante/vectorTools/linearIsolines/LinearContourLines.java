@@ -29,9 +29,11 @@ import java.util.LinkedList;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import es.unex.sextante.vectorTools.tinWithFixedLines.TriangleDT;
+
 public class LinearContourLines {
-	static LinkedList contours = new LinkedList();
-	static ArrayList finalIsolines  = new ArrayList();
+	//static LinkedList contours = new LinkedList();
+	static ArrayList finalIsolines  = null;
 	static double elevatedStep;
 	static double minIso;
 	static double maxIso;
@@ -51,13 +53,15 @@ public class LinearContourLines {
 		Coordinate stopIZO = null;
 		//T.toStringa();
 		double elev = Double.NEGATIVE_INFINITY;
+		System.out.println(triangle[0].z/elevatedStep);
+		System.out.println((int)(triangle[0].z/elevatedStep));
 
 		//TEST OF SINGULAR POINTS
-		if (triangle[0].z/elevatedStep == (int)triangle[0].z/elevatedStep)
+		if (triangle[0].z/elevatedStep == (int)(triangle[0].z/elevatedStep))
 			triangle[0].z = triangle[0].z + elevatedStep*0.01;//Float.MIN_VALUE;
-		if (triangle[1].z/elevatedStep == (int)triangle[1].z/elevatedStep)
+		if (triangle[1].z/elevatedStep == (int)(triangle[1].z/elevatedStep))
 			triangle[1].z = triangle[1].z +  elevatedStep*0.01;//Float.MIN_VALUE;
-		if (triangle[2].z/elevatedStep == (int)triangle[2].z/elevatedStep)
+		if (triangle[2].z/elevatedStep == (int)(triangle[2].z/elevatedStep))
 			triangle[2].z = triangle[2].z +  elevatedStep*0.01;//Float.MIN_VALUE;
 
 				minZ = triangle[0].z;
@@ -71,8 +75,9 @@ public class LinearContourLines {
 				if (maxZ < triangle[2].z)
 					maxZ = triangle[2].z;
 				elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
-			//	T.toStringa();
-						
+
+				TriangleDT T = new TriangleDT(triangle[0],triangle[1],triangle[2]);//	T.toStringa();
+				T.toStringa();		
 						
 				while (elev <= maxZ){
 		//			if (elev == T.A.z || elev == T.B.z || elev == T.C.z){
@@ -102,9 +107,9 @@ public class LinearContourLines {
 						sortIsolines(startIZO,stopIZO, elev);	//
 						
 					}
-				//	else{
-				//		System.out.println("JE TO TUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
-				//	}
+					else{
+						System.out.println("JE TO TUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+					}
 
 						/////////////
 					
@@ -150,6 +155,7 @@ public class LinearContourLines {
 		elevatedStep = equiDistance;
 		minIso = minZ;
 		maxIso = maxZ;
+		finalIsolines = new ArrayList();
 		numberOfIsolines = Double.valueOf((maxZ-minZ)/elevatedStep).intValue()+1;
 		System.out.println(numberOfIsolines+" CIIIIIIIIIIIISLO");
 		treeIndex = new BinaryTree[numberOfIsolines];

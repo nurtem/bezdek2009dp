@@ -123,6 +123,7 @@ public class TINWithFixedLines {
 				int i = triangles.size();
 				Iterator iter = trianglesToChange.iterator();
 				while(iter.hasNext()){
+					
 					TriangleDT T = (TriangleDT) iter.next();
 					data = new Data(dd);
 					data.addValue(i);
@@ -254,76 +255,6 @@ public class TINWithFixedLines {
 		return false;
 	}
 	
-	/***
-	   * The private method for testing and adding in old triangulation triangles
-	   *
-	   * @param LinkedList left - List of new triangles, which are on the left side of the line
-	   * @param LinkedList right - List of new triangles, which are on the right side of the line
-	   * @param LinkedList trianglesToChange - List of old triangles, which will be deleted from triangulation
-	   *	
-	   */		
-	
-/*	private static void testAndAddTrianglesToTIN(Triangle[] left, ArrayList leftPoints, Triangle[] right, ArrayList rightPoints, LinkedList trianglesToChange, LineDT line){
-		TriangleDT T;
-		Data data;
-		DataDefinition dd = new DataDefinition("US-ASCII"); 
-		dd.addField(Integer.class);
-		int i = triangles.size();
-		if (left!=null){						//test leve triangulace
-			for (int j=0; j<left.length; j++){
-		
-				for (int k=0; k<3; k++);
-				try{
-					coords[i] = m_Coords[triangle.ppp[i].i];
-				//	System.out.println(m_Coords[triangle.ppp[i].i]);
-				}catch (Exception e){
-					return null;
-				}
-				
-				TriangleDT T = new TriangleDT((Coordinate)(leftPoints.get(left[j].ppp[0].0)),
-												(Coordinate)(leftPoints.get(left[j].ppp[2].1)),
-												(Coordinate)(leftPoints.get(left[j].ppp[2].2));
-				
-				
-				if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
-					T.haveBreakLine = true;
-				if (testIsInside(T, trianglesToChange)){
-					try{
-						data = new Data(dd);
-						data.addValue(i);
-						trianglesIdx.insert(T.getEnvelope(), data);
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
-					triangles.add(i, T);				//vlozeni do celkove triangulace
-					i++;
-				}
-			}
-		}
-		if (right!=null){						//test prave triagulace
-			Iterator it = right.iterator();
-			while (it.hasNext()){
-				T = (TriangleDT)it.next();
-				if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
-					T.haveBreakLine = true;
-				if (testIsInside(T, trianglesToChange)){
-					try{
-						data = new Data(dd);
-						data.addValue(i);
-						trianglesIdx.insert(T.getEnvelope(), data);
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
-					triangles.add(i, T);				//vlozeni do celkove triangulace
-					i++;
-				}
-				
-			}
-		}
-
-	}*/
 	
 	public static TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
 		Coordinate[] coords = new Coordinate[3];
@@ -425,9 +356,21 @@ public class TINWithFixedLines {
 						//System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						if (T!=null){
 							T.toStringa();
-							if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B))
+							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
+								System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
 								T.haveBreakLine = true;
-							if (testIsInside(T, trianglesToChange)){
+								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
+									T.typeBreakLine = 0;
+								}
+								else
+									if ((T.B.compare(line.A)&&T.C.compare(line.B))||(T.C.compare(line.B)&&T.B.compare(line.A))){
+										T.typeBreakLine = 1;
+									}
+									else{
+										T.typeBreakLine = 2;
+								}
+							}
+						if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
 									data.addValue(i);
@@ -468,7 +411,10 @@ public class TINWithFixedLines {
 						TriangleDT T = getTriangle(rightTIN[j], rightPoints);
 						if (T!=null){
 							T.toStringa();
-							if (line.isHardBreakLine&&T.contains(line.A)&&T.contains(line.B)){
+							System.out.println("VYPISUJU ===================================");
+							System.out.println(line.toString());
+							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
+								System.out.println("je to breaklineDRUHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
 								T.haveBreakLine = true;
 								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
 									T.typeBreakLine = 0;

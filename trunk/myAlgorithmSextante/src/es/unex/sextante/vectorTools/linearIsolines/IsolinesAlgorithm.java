@@ -23,7 +23,7 @@ import es.unex.sextante.outputs.OutputVectorLayer;
 
 public class IsolinesAlgorithm extends GeoAlgorithm {
 	
-	public static final String TRIANGLES = "TRIANGLES";
+	public static final String TIN = "TIN";
 	public static final String ISOLINES = "ISOLINES";
 	public static final String EQUIDISTANCE = "EQUIDISTANCE";
 	
@@ -38,7 +38,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 		setGeneratesUserDefinedRasterOutput(false);
 
 		try {
-			m_Parameters.addInputVectorLayer(TRIANGLES,
+			m_Parameters.addInputVectorLayer(TIN,
 											Sextante.getText( "TIN"),
 											AdditionalInfoVectorLayer.SHAPE_TYPE_POLYGON,
 											true);
@@ -66,11 +66,11 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 		double maxZValue = Double.NEGATIVE_INFINITY;
 		double minZValue = Double.POSITIVE_INFINITY;
 		
-		m_Triangles = m_Parameters.getParameterValueAsVectorLayer(TRIANGLES);
+		m_Triangles = m_Parameters.getParameterValueAsVectorLayer(TIN);
 		m_EquiDistance = m_Parameters.getParameterValueAsDouble(EQUIDISTANCE);
 		
 		Class types[] = {Integer.class, Double.class};
-		String sNames[] = {"ID","value"};
+		String sNames[] = {"ID","Value"};
 		m_Isolines = getNewVectorLayer(ISOLINES,
 										m_Triangles.getName()+"_Isolines",
 										IVectorLayer.SHAPE_TYPE_POLYGON,
@@ -115,12 +115,12 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 					GeometryFactory gf = new GeometryFactory();
 					Iterator isoL = ((LinkedList)o).iterator();
 					Coordinate[] coords = new Coordinate[((LinkedList)o).size()];
-					Object[] record = {new Integer(j),1D};
 					int k = 0;
 					while(isoL.hasNext()){
 						coords[k] = (Coordinate)isoL.next();
 						k++;
 					}	
+					Object[] record = {new Integer(j),coords[0].z};
 					LineString isoline = gf.createLineString(coords);
 					m_Isolines.addFeature(isoline, record);
 					j++;

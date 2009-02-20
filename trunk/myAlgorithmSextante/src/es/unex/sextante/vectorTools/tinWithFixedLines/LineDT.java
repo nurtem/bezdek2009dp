@@ -53,6 +53,10 @@ public class LineDT {
 		this.B = new PointDT(B);
 		this.isHardBreakLine = isHardBreakLine;
 	}
+	
+	public String toString(){
+		return (A.toString()+"   "+B.toString()+"   "+isHardBreakLine);
+	}
 
 	
 }
