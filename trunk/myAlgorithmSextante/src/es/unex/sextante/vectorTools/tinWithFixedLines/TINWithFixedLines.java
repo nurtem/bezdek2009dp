@@ -354,7 +354,7 @@ public class TINWithFixedLines {
 					for (int j=0; j<leftTIN.length; j++){
 						TriangleDT T = getTriangle(leftTIN[j], leftPoints);
 						//System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
-						if (T!=null){
+						if (T!=null && T.isTriangle()){
 							T.toStringa();
 							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
 								System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
@@ -409,7 +409,7 @@ public class TINWithFixedLines {
 					for (int j=0; j<rightTIN.length; j++){
 					//	System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						TriangleDT T = getTriangle(rightTIN[j], rightPoints);
-						if (T!=null){
+						if (T!=null && T.isTriangle()){
 							T.toStringa();
 							System.out.println("VYPISUJU ===================================");
 							System.out.println(line.toString());
