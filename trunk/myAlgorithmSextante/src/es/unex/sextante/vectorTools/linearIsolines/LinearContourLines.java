@@ -53,8 +53,8 @@ public class LinearContourLines {
 		Coordinate stopIZO = null;
 		//T.toStringa();
 		double elev = Double.NEGATIVE_INFINITY;
-		System.out.println(triangle[0].z/elevatedStep);
-		System.out.println((int)(triangle[0].z/elevatedStep));
+	//	System.out.println(triangle[0].z/elevatedStep);
+	//	System.out.println((int)(triangle[0].z/elevatedStep));
 
 		//TEST OF SINGULAR POINTS
 		if (triangle[0].z/elevatedStep == (int)(triangle[0].z/elevatedStep))
@@ -76,8 +76,8 @@ public class LinearContourLines {
 					maxZ = triangle[2].z;
 				elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
 
-				TriangleDT T = new TriangleDT(triangle[0],triangle[1],triangle[2]);//	T.toStringa();
-				T.toStringa();		
+		//		TriangleDT T = new TriangleDT(triangle[0],triangle[1],triangle[2]);//	T.toStringa();
+		//		T.toStringa();		
 						
 				while (elev <= maxZ){
 		//			if (elev == T.A.z || elev == T.B.z || elev == T.C.z){
@@ -107,9 +107,9 @@ public class LinearContourLines {
 						sortIsolines(startIZO,stopIZO, elev);	//
 						
 					}
-					else{
-						System.out.println("JE TO TUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
-					}
+					//else{
+					//	System.out.println("JE TO TUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+				//	}
 
 						/////////////
 					
@@ -157,14 +157,14 @@ public class LinearContourLines {
 		maxIso = maxZ;
 		finalIsolines = new ArrayList();
 		numberOfIsolines = Double.valueOf((maxZ-minZ)/elevatedStep).intValue()+1;
-		System.out.println(numberOfIsolines+" CIIIIIIIIIIIISLO");
+		//System.out.println(numberOfIsolines+" CIIIIIIIIIIIISLO");
 		treeIndex = new BinaryTree[numberOfIsolines];
 		for (int i=0; i<numberOfIsolines; i++)
 			treeIndex[i] = new BinaryTree();
 		
 		for (int i = 0; i<triangles.length; i++ ){
 			trianglesIsoLines(triangles[i]);
-			System.out.println("TROJUHELNIK"+ i);
+		//	System.out.println("TROJUHELNIK"+ i);
 		}
 		
 		//sortIsolines(contours, minIso, maxIso, elevatedStep);

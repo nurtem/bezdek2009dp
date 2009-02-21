@@ -116,6 +116,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		dd.addField(Integer.class);
 		IFeatureIterator iter = m_Triangles.iterator();
 		RTree trianglesIdx = null;
+		
 		try{ 
 			PageStore ps = new MemoryPageStore(dd);
 			trianglesIdx = new RTree(ps);
@@ -126,8 +127,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				TriangleDT triangle = new TriangleDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
 						new PointDT(coords[1].x,coords[1].y,coords[1].z),
 						new PointDT(coords[2].x,coords[2].y,coords[2].z));
-				System.out.println(i);
-				triangle.toStringa();
+			//	System.out.println(i);
+			//	triangle.toStringa();
 				triangles.add(i, triangle);
 				data = new Data(dd);
 				data.addValue(i);
@@ -186,7 +187,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		}
 
 		if (!(breakLines==null)){
-			triangles = TINWithFixedLines.countTIN(triangles, trianglesIdx, breakLines);
+			TINWithFixedLines newTriangles = new TINWithFixedLines(triangles, trianglesIdx, breakLines);
+			triangles = newTriangles.countTIN();
 			Iterator iterJ = triangles.iterator();
 			int j = 0;
 						
@@ -210,7 +212,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				}
 			}
 		}
-		System.out.println("AHOJ");
+	//	System.out.println("AHOJ");
 		return !m_Task.isCanceled();
 
 		

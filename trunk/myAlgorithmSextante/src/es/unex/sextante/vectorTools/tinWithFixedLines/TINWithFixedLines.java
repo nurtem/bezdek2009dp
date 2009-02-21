@@ -42,20 +42,26 @@ import es.unex.sextante.vectorTools.delaunay.Triangulation;
 import es.unex.sextante.vectorTools.delaunay.Triangulation.Triangle;
 
 public class TINWithFixedLines {
-	static RTree trianglesIdx;
-	static LinkedList fixedLines;	// list of hard lines
-	static LineDT line;
-	static ArrayList triangles;
-	static Data data;
-	static DataDefinition dd = new DataDefinition("US-ASCII");
+	RTree trianglesIdx;
+	LinkedList fixedLines;	// list of hard lines
+	LineDT line = null;
+	ArrayList triangles;
+	Data data = null;
+	DataDefinition dd = new DataDefinition("US-ASCII");
 
+	TINWithFixedLines (ArrayList triangles, RTree trianglesIdx, LinkedList fixedLines){
+		this.triangles = triangles;
+		this.trianglesIdx = trianglesIdx;
+		this.fixedLines = fixedLines;
+	}
+	
 	/***100
 	   * The private method for searching a triangle which are intersect by new hard line
 	   *
 	   * @param PointDT - coordinate of new hard line
 	   */			
 	
-	private static LinkedList getTrianglesIntersectLine(){
+	private LinkedList getTrianglesIntersectLine(){
 		int index = 0;
 		LinkedList trianglesToChange = new LinkedList();
 		List trianglesOverEnvelopeIdx = null;
@@ -75,7 +81,7 @@ public class TINWithFixedLines {
 		while (iter.hasNext()){
 			index = (Integer)((Data) iter.next()).getValue(0);
 			
-			System.out.println(index);
+		//	System.out.println(index);
 			if (triangles.get(index)!=null){
 				TriangleDT T = (TriangleDT) triangles.get(index);
 				//T.toStringa();
@@ -119,7 +125,7 @@ public class TINWithFixedLines {
 		}
 		if ((containA == false)||(containB == false)){
 			try{
-				//System.out.println("TAK TED SE TO NEPOVEDLO =======================");
+			//	System.out.println("TAK TED SE TO NEPOVEDLO ==========´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´=====================");
 				int i = triangles.size();
 				Iterator iter = trianglesToChange.iterator();
 				while(iter.hasNext()){
@@ -147,7 +153,7 @@ public class TINWithFixedLines {
 		
 	}
 	
-	private static double setZ(PointDT A, TriangleDT T){
+	private double setZ(PointDT A, TriangleDT T){
 		if (T.A.compare(A))
 			return T.A.z;
 		if (T.B.compare(A))
@@ -167,7 +173,7 @@ public class TINWithFixedLines {
 	   *    
        */		
 	
-	private static boolean lineContainsPoint(LineString line, PointDT P){
+	private boolean lineContainsPoint(LineString line, PointDT P){
 		Coordinate[] newPoint={P}; 
 		CoordinateArraySequence newPointP=new CoordinateArraySequence(newPoint);
 		Point newP=new Point(newPointP,new GeometryFactory());
@@ -186,7 +192,7 @@ public class TINWithFixedLines {
 	   *    
        */		
 	
-	private static boolean listContainsPoint(LinkedList points, PointDT P){
+	private boolean listContainsPoint(LinkedList points, PointDT P){
 		Iterator iter = points.iterator();
 		while (iter.hasNext()){		
 			if (((PointDT)iter.next()).compare(P))
@@ -207,7 +213,7 @@ public class TINWithFixedLines {
 	   *    
 	   */		
 	
-	private static LinkedList getPoints(LinkedList trianglesT, PointDT A, PointDT B){
+	private LinkedList getPoints(LinkedList trianglesT, PointDT A, PointDT B){
 		Iterator iter = trianglesT.iterator();
 		LinkedList points = new LinkedList();
 		TriangleDT T = (TriangleDT) iter.next();
@@ -245,7 +251,7 @@ public class TINWithFixedLines {
 	   *                       
        */		
 	
-	private static boolean testIsInside(TriangleDT T, LinkedList trians){
+	private boolean testIsInside(TriangleDT T, LinkedList trians){
 		Iterator iter = trians.iterator();
 		while (iter.hasNext()){			//testovani zda teziste noveho trojuhelnika je uvnitr zrusenych trojuhelniku
 			if (((TriangleDT)iter.next()).contains(new PointDT(T.key[0],T.key[1],0))){
@@ -256,7 +262,7 @@ public class TINWithFixedLines {
 	}
 	
 	
-	public static TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
+	public TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
 		Coordinate[] coords = new Coordinate[3];
 
 		for (int i = 0; i < 3; i++) {
@@ -281,11 +287,8 @@ public class TINWithFixedLines {
 	   */		
 	
 	
-	public static ArrayList countTIN(ArrayList trianglesDT, RTree trianglesDTIdx, LinkedList fixedLinesDT){
+	public ArrayList countTIN(){
 					// list pevnych hran
-		triangles = trianglesDT;
-		trianglesIdx = trianglesDTIdx;
-		fixedLines = fixedLinesDT;
 		
 		Iterator iter = fixedLines.iterator();
 		ArrayList leftPoints;				// body nad primkou
@@ -301,6 +304,7 @@ public class TINWithFixedLines {
 										// uhel pooteceni alfa, posunuti 0 v x-ove i v y-ove ose
 		dd.addField(Integer.class);
 		while (iter.hasNext()){			//cyklus pro pevne hrany
+			points = new LinkedList();
 			leftTIN = null;
 			rightTIN = null;
 			leftPoints = new ArrayList();
@@ -343,7 +347,7 @@ public class TINWithFixedLines {
 					int index = 0;
 					while (it.hasNext()){
 						coordsLeft[index] = (Coordinate)it.next();
-						System.out.println(coordsLeft[index].toString());
+					//	System.out.println(coordsLeft[index].toString());
 						index++;
 					}
 					
@@ -355,9 +359,9 @@ public class TINWithFixedLines {
 						TriangleDT T = getTriangle(leftTIN[j], leftPoints);
 						//System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						if (T!=null && T.isTriangle()){
-							T.toStringa();
+						//	T.toStringa();
 							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
-								System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+							//	System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
 								T.haveBreakLine = true;
 								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
 									T.typeBreakLine = 0;
@@ -410,11 +414,11 @@ public class TINWithFixedLines {
 					//	System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						TriangleDT T = getTriangle(rightTIN[j], rightPoints);
 						if (T!=null && T.isTriangle()){
-							T.toStringa();
-							System.out.println("VYPISUJU ===================================");
-							System.out.println(line.toString());
+						//	T.toStringa();
+						//	System.out.println("VYPISUJU ===================================");
+						//	System.out.println(line.toString());
 							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
-								System.out.println("je to breaklineDRUHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+							//	System.out.println("je to breaklineDRUHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
 								T.haveBreakLine = true;
 								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
 									T.typeBreakLine = 0;
@@ -431,7 +435,8 @@ public class TINWithFixedLines {
 								try{
 									data = new Data(dd);
 									data.addValue(i);
-									//System.out.println("VSTUpuje>   "+i);
+									//
+								//	System.out.println("VSTUpuje>   "+i);
 								//	System.out.println(T.getEnvelope().toString());
 									trianglesIdx.insert(T.getEnvelope(), data);
 								}

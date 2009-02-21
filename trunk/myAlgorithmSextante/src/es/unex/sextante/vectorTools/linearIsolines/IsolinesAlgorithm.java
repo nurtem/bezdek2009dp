@@ -129,7 +129,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 			}
 			
 		
-			System.out.println("AHOJ");
+		//	System.out.println("AHOJ");
 		return !m_Task.isCanceled();
 
 		
