@@ -147,7 +147,7 @@ public class BezierSurface {
 			trianglesIndex = new RTree(ps);
 			for (int i=0; i<triangles.length; i++){
 				bezierTriangles[i] = new Bezier2(triangles[i]);
-				bezierTriangles[i].toStringa();
+				//bezierTriangles[i].toStringa();
 				data = new Data(dd);
 				data.addValue(i);
 				trianglesIndex.insert(bezierTriangles[i].getEnvelope(), data);
@@ -228,7 +228,7 @@ public class BezierSurface {
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b030),
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b003)); 
 			bezierTriangles[trianglesIndex].setControlPoints();
-
+			bezierTriangles[trianglesIndex].toStringa();
 		}
 		
 		

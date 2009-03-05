@@ -104,7 +104,7 @@ class Bezier2 {
 	 */
 	private Coordinate countVector(LinkedList list, Coordinate P){
 		Iterator iter = list.iterator();
-		
+		double koeficient = 1D;
 		//System.out.println("Normaly rovin");
 		double sumX = 0;
 		double sumY = 0;
@@ -118,7 +118,7 @@ class Bezier2 {
 		}
 		double sum = Math.sqrt(Math.pow(sumX,2)+Math.pow(sumY, 2)+Math.pow(sumZ, 2));
 	//	double sum = 1;
-		return new Coordinate((sumX/sum), (sumY/sum), (sumZ/sum));
+		return new Coordinate((sumX/sum)*koeficient, (sumY/sum)*koeficient, (sumZ/sum)*koeficient);
 		//return new PointDT((sumX), (sumY), (sumZ));
 	}
 	
@@ -193,13 +193,13 @@ class Bezier2 {
 	protected Coordinate getNormal(double u , double v){
 		double w = 1-(u+v);
 		double x = n200.x * Math.pow(w, 2) + n020.x * Math.pow(u, 2) + n002.x * Math.pow(v, 2)+
-					n110.x*w*u + n011.x*u*v + n101.x*w*v;
+					2*n110.x*w*u + 2*n011.x*u*v + 2*n101.x*w*v;
 		
 		double y = n200.y * Math.pow(w, 2) + n020.y * Math.pow(u, 2) + n002.y * Math.pow(v, 2)+
-		n110.y*w*u + n011.y*u*v + n101.y*w*v;
+		2*n110.y*w*u + 2*n011.y*u*v + 2*n101.y*w*v;
 
 		double z = n200.z * Math.pow(w, 2) + n020.z * Math.pow(u, 2) + n002.z * Math.pow(v, 2)+
-		n110.z*w*u + n011.z*u*v + n101.z*w*v;
+		2*n110.z*w*u + 2*n011.z*u*v + 2*n101.z*w*v;
 		
 		return new Coordinate(x,y,z);
 	}
@@ -209,30 +209,116 @@ class Bezier2 {
 	 */
 	protected void setControlPoints(){
 		setQuadraticNormals();
-		double koeficient = 1D;
-		b210 = new Coordinate(	(2*b300.x + b030.x - countDifferenceProduct(b030,b300).x * getNormal(0.3333333D, 0D).x*koeficient)/3,
-				(2*b300.y + b030.y  - countDifferenceProduct(b030,b300).y * getNormal(0.3333333D, 0D).y*koeficient)/3,
-				(2*b300.z + b030.z - countDifferenceProduct(b030,b300).z * getNormal(0.33333333D, 0D).z*koeficient)/3);
+		double k = 1D;
+//		double u 
+/*	
+		b210 = new Coordinate(	(2*b300.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b300),normalN1)*normalN1.x)/3,
+                (2*b300.y + b030.y - countScalarProduct(countDifferenceProduct(b030,b300),normalN1) * normalN1.y)/3,
+                (2*b300.z + b030.z - countScalarProduct(countDifferenceProduct(b030,b300),normalN1) * normalN1.z)/3);
+//countDifferenceProduct(b030,b300).toString();
+b120 = new Coordinate(	(2*b030.x + b300.x - countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * normalN2.x)/3,
+                (2*b030.y + b300.y - countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * normalN2.y)/3,
+                (2*b030.z + b300.z - countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * normalN2.z)/3);
+//	System.out.println("b120"+b120.toString());
+b021 = new Coordinate(	(2*b030.x + b003.x - countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * normalN2.x)/3,
+                (2*b030.y + b003.y - countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * normalN2.y)/3,
+                (2*b030.z + b003.z - countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * normalN2.z)/3);
+//	System.out.println("b021"+b021.toString());
+b012 = new Coordinate(	(2*b003.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * normalN3.x)/3,
+                (2*b003.y + b030.y - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * normalN3.y)/3,
+             	(2*b003.z + b030.z - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * normalN3.z)/3);
+//System.out.println("b012"+b012.toString());
+b201 = new Coordinate(	(2*b300.x + b003.x - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * normalN1.x)/3,
+                (2*b300.y + b003.y - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * normalN1.y)/3,
+                (2*b300.z + b003.z - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * normalN1.z)/3);
+//System.out.println("b102"+b102.toString());
+b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * normalN3.x)/3,
+               (2*b003.y + b300.y - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * normalN3.y)/3,
+       		   (2*b003.z + b300.z - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * normalN3.z)/3);
+
+
+*/
+		System.out.println("normala> "+getNormal(0.3333333D, 0D).toString());
+		b210 = new Coordinate(	(2*b300.x + b030.x -  k*countScalarProduct(countDifferenceProduct(b030,b300), normalN1) * getNormal(0.3333333D, 0D).x)/3,
+				(2*b300.y + b030.y  -  k*countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).y)/3,
+				(2*b300.z + b030.z -  k*countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).z)/3);
 		//countDifferenceProduct(b030,b300).toString();
-		b120 = new Coordinate(	(2*b030.x + b300.x - countDifferenceProduct(b300,b030).x * getNormal(0.666666D, 0D).x*koeficient)/3,
-				(2*b030.y + b300.y  -  countDifferenceProduct(b300,b030).y * getNormal(0.666666D, 0D).y*koeficient)/3,
-				(2*b030.z + b300.z -  countDifferenceProduct(b300,b030).z * getNormal(0.666666D, 0D).z*koeficient)/3);
+		b120 = new Coordinate(	(2*b030.x + b300.x - k* countScalarProduct(countDifferenceProduct(b300,b030),  normalN2) * getNormal(0.666666D, 0D).x)/3,
+				(2*b030.y +  b300.y  -   k*countScalarProduct(countDifferenceProduct(b300,b030), normalN2)* getNormal(0.666666D, 0D).y)/3,
+				(2*b030.z + b300.z -   k*countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).z)/3);
 	//	System.out.println("b120"+b120.toString());
-		b021 = new Coordinate(	(2*b030.x + b003.x -  countDifferenceProduct(b003,b030).x * getNormal(0.666666D, 0.3333333D).x*koeficient)/3,
-				(2*b030.y + b003.y - countDifferenceProduct(b003,b030).y * getNormal(0.666666D, 0.33333333D).y*koeficient)/3,
-				(2*b030.z + b003.z - countDifferenceProduct(b003,b030).z * getNormal(0.666666D, 0.33333333D).z*koeficient)/3);
+		b021 = new Coordinate(	(2*b030.x + b003.x -   k*countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).x)/3,
+				(2*b030.y + b003.y -  k*countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).y)/3,
+				(2*b030.z + b003.z -  k*countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).z)/3);
 	//	System.out.println("b021"+b021.toString());
-		b012 = new Coordinate(	(2*b003.x + b030.x - countDifferenceProduct(b030,b003).x * getNormal(0.33333333D, 0.6666666D).x*koeficient)/3,
-				(2*b003.y + b030.y - countDifferenceProduct(b030,b003).y *getNormal(0.3333333D, 0.6666666D).y*koeficient)/3,
-				(2*b003.z + b030.z - countDifferenceProduct(b030,b003).z *getNormal(0.33333333D, 0.6666666D).z*koeficient)/3);
+		b012 = new Coordinate(	(2*b003.x + b030.x -k* countScalarProduct(countDifferenceProduct(b030,b003), normalN3)* getNormal(0.33333333D, 0.6666666D).x)/3,
+				(2*b003.y + b030.y -  k*countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).y)/3,
+				(2*b003.z + b030.z -  k*countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).z)/3);
 		//System.out.println("b012"+b012.toString());
-		b102 = new Coordinate(	(2*b003.x + b300.x - countDifferenceProduct(b300,b003).x *getNormal(0D, 0.6666666D).x*koeficient)/3,
-				(2*b003.y + b300.y - countDifferenceProduct(b300,b003).y *getNormal(0D, 0.6666666D).y*koeficient)/3,
-				(2*b003.z + b300.z - countDifferenceProduct(b300,b003).z *getNormal(0D, 0.6666666D).z*koeficient)/3);
+		b102 = new Coordinate(	(2*b003.x + b300.x - k* countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).x)/3,
+				(2*b003.y + b300.y -  k*countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).y)/3,
+				(2*b003.z + b300.z -  k*countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).z)/3);
 		//System.out.println("b102"+b102.toString());
-		b201 = new Coordinate( (2*b300.x + b003.x - countDifferenceProduct(b003,b300).x *getNormal(0D, 0.33333333D).x*koeficient)/3,
-				(2*b300.y + b003.y - countDifferenceProduct(b003,b300).y *getNormal(0D, 0.33333333D).y*koeficient)/3,
-				(2*b300.z + b003.z - countDifferenceProduct(b003,b300).z *getNormal(0D, 0.33333333D).z*koeficient)/3);
+		b201 = new Coordinate( (2*b300.x + b003.x -  k*countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).x)/3,
+				(2*b300.y + b003.y -  k*countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).y)/3,
+				(2*b300.z + b003.z -  k*countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).z)/3);
+		//System.out.println("b201"+b201.toString());
+
+
+/*
+		
+		
+		System.out.println("normala> "+getNormal(0.3333333D, 0D).toString());
+		b210 = new Coordinate(	(2*b300.x + b030.x -  k*countScalarProduct(countDifferenceProduct(b030,b300), getNormal(0.3333333D, 0D)) * getNormal(0.3333333D, 0D).x)/3,
+				(2*b300.y + b030.y  -  k*countScalarProduct(countDifferenceProduct(b030,b300),  getNormal(0.3333333D, 0D)) * getNormal(0.3333333D, 0D).y)/3,
+				(2*b300.z + b030.z -  k*countScalarProduct(countDifferenceProduct(b030,b300),  getNormal(0.3333333D, 0D)) * getNormal(0.3333333D, 0D).z)/3);
+		//countDifferenceProduct(b030,b300).toString();
+		b120 = new Coordinate(	(2*b030.x + b300.x - k* countScalarProduct(countDifferenceProduct(b300,b030),  getNormal(0.666666D, 0D)) * getNormal(0.666666D, 0D).x)/3,
+				(2*b030.y +  b300.y  -   k*countScalarProduct(countDifferenceProduct(b300,b030), getNormal(0.666666D, 0D))* getNormal(0.666666D, 0D).y)/3,
+				(2*b030.z + b300.z -   k*countScalarProduct(countDifferenceProduct(b300,b030), getNormal(0.666666D, 0D)) * getNormal(0.666666D, 0D).z)/3);
+	//	System.out.println("b120"+b120.toString());
+		b021 = new Coordinate(	(2*b030.x + b003.x -   k*countScalarProduct(countDifferenceProduct(b003,b030), getNormal(0.666666D, 0.3333333D)) * getNormal(0.666666D, 0.3333333D).x)/3,
+				(2*b030.y + b003.y -  k*countScalarProduct(countDifferenceProduct(b003,b030), getNormal(0.666666D, 0.3333333D)) * getNormal(0.666666D, 0.3333333D).y)/3,
+				(2*b030.z + b003.z -  k*countScalarProduct(countDifferenceProduct(b003,b030), getNormal(0.666666D, 0.3333333D)) * getNormal(0.666666D, 0.3333333D).z)/3);
+	//	System.out.println("b021"+b021.toString());
+		b012 = new Coordinate(	(2*b003.x + b030.x -k* countScalarProduct(countDifferenceProduct(b030,b003), getNormal(0.33333333D, 0.6666666D))* getNormal(0.33333333D, 0.6666666D).x)/3,
+				(2*b003.y + b030.y -  k*countScalarProduct(countDifferenceProduct(b030,b003), getNormal(0.33333333D, 0.6666666D)) * getNormal(0.33333333D, 0.6666666D).y)/3,
+				(2*b003.z + b030.z -  k*countScalarProduct(countDifferenceProduct(b030,b003), getNormal(0.33333333D, 0.6666666D)) * getNormal(0.33333333D, 0.6666666D).z)/3);
+		//System.out.println("b012"+b012.toString());
+		b102 = new Coordinate(	(2*b003.x + b300.x - k* countScalarProduct(countDifferenceProduct(b300,b003), getNormal(0D, 0.6666666D)) * getNormal(0D, 0.6666666D).x)/3,
+				(2*b003.y + b300.y -  k*countScalarProduct(countDifferenceProduct(b300,b003), getNormal(0D, 0.6666666D)) * getNormal(0D, 0.6666666D).y)/3,
+				(2*b003.z + b300.z -  k*countScalarProduct(countDifferenceProduct(b300,b003), getNormal(0D, 0.6666666D)) * getNormal(0D, 0.6666666D).z)/3);
+		//System.out.println("b102"+b102.toString());
+		b201 = new Coordinate( (2*b300.x + b003.x -  k*countScalarProduct(countDifferenceProduct(b003,b300), getNormal(0D, 0.33333333D)) * getNormal(0D, 0.33333333D).x)/3,
+				(2*b300.y + b003.y -  k*countScalarProduct(countDifferenceProduct(b003,b300), getNormal(0D, 0.33333333D)) * getNormal(0D, 0.33333333D).y)/3,
+				(2*b300.z + b003.z -  k*countScalarProduct(countDifferenceProduct(b003,b300), getNormal(0D, 0.33333333D)) * getNormal(0D, 0.33333333D).z)/3);
+		//System.out.println("b201"+b201.toString());
+		
+/*		
+		System.out.println("normala> "+getNormal(0.3333333D, 0D).toString());
+		b210 = new Coordinate(	(2*b300.x + b030.x -  countScalarProduct(countDifferenceProduct(b030,b300), normalN1) * getNormal(0.3333333D, 0D).x)/3,
+				(2*b300.y + b030.y  -  countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).y)/3,
+				(2*b300.z + b030.z -  countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).z)/3);
+		//countDifferenceProduct(b030,b300).toString();
+		b120 = new Coordinate(	(2*b030.x + b300.x -  countScalarProduct(countDifferenceProduct(b300,b030),  normalN2) * getNormal(0.666666D, 0D).x)/3,
+				(2*b030.y +  b300.y  -   countScalarProduct(countDifferenceProduct(b300,b030), normalN2)* getNormal(0.666666D, 0D).y)/3,
+				(2*b030.z + b300.z -   countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).z)/3);
+	//	System.out.println("b120"+b120.toString());
+		b021 = new Coordinate(	(2*b030.x + b003.x -   countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).x)/3,
+				(2*b030.y + b003.y -  countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).y)/3,
+				(2*b030.z + b003.z -  countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).z)/3);
+	//	System.out.println("b021"+b021.toString());
+		b012 = new Coordinate(	(2*b003.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b003), normalN3)* getNormal(0.33333333D, 0.6666666D).x)/3,
+				(2*b003.y + b030.y -  countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).y)/3,
+				(2*b003.z + b030.z -  countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).z)/3);
+		//System.out.println("b012"+b012.toString());
+		b102 = new Coordinate(	(2*b003.x + b300.x -  countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).x)/3,
+				(2*b003.y + b300.y -  countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).y)/3,
+				(2*b003.z + b300.z -  countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).z)/3);
+		//System.out.println("b102"+b102.toString());
+		b201 = new Coordinate( (2*b300.x + b003.x -  countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).x)/3,
+				(2*b300.y + b003.y -  countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).y)/3,
+				(2*b300.z + b003.z -  countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).z)/3);
 		//System.out.println("b201"+b201.toString());
 
 	/*	
@@ -256,14 +342,14 @@ class Bezier2 {
 							(2*b300.z + b003.z - countScalarProduct(countDifferenceProduct(b003,b300),normalN1)*normalN1.z*koeficient)/3);
 		*/
 		Coordinate helpE = new Coordinate((b210.x+b120.x+b021.x+b012.x+b102.x+b201.x)/6,
-									(b210.y+b120.y+b021.y+b012.y+b102.y+b201.y)/6,
-									(b210.z+b120.z+b021.z+b012.z+b102.z+b201.z)/6);
+									      (b210.y+b120.y+b021.y+b012.y+b102.y+b201.y)/6,
+									      (b210.z+b120.z+b021.z+b012.z+b102.z+b201.z)/6);
 		Coordinate helpV = new Coordinate((b300.x+b030.x+b003.x)/3,
-									(b300.y+b030.y+b003.y)/3,
-									(b300.z+b030.z+b003.z)/3);
-		b111 = new Coordinate( helpE.x + (helpE.x-helpV.x)/2,
-				 			helpE.y + (helpE.y-helpV.y)/2,
-				 			helpE.z + (helpE.z-helpV.z)/2);
+									      (b300.y+b030.y+b003.y)/3,
+									      (b300.z+b030.z+b003.z)/3);
+		b111 = new Coordinate( (helpE.x + (helpE.x-helpV.x)/2)*k,
+				 			(helpE.y + (helpE.y-helpV.y)/2)*k,
+				 			((helpE.z + (helpE.z-helpV.z)/2))*k);
 		
 		//System.out.println("b111"+b111.toString());
 	}
@@ -315,7 +401,7 @@ class Bezier2 {
 			System.out.println(normalN2.toString());
 			System.out.println(normalN3.toString());
 			System.out.println("Koeficients");
-			if (1==0){
+			
 				System.out.println(b012.toString());
 				System.out.println(b021.toString());
 				System.out.println(b102.toString());
@@ -323,7 +409,7 @@ class Bezier2 {
 				System.out.println(b210.toString());
 				System.out.println(b201.toString());
 				System.out.println(b111.toString());
-			}
+			
 		}	
 		System.out.println("======================================");
 	}
