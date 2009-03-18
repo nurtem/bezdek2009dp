@@ -184,8 +184,8 @@ class Bezier3 {
 	
 	protected Coordinate setNormalVector(Coordinate A, Coordinate B){
 		Coordinate normal = new Coordinate(A.y*B.z-A.z*B.y, A.z*B.x-A.x*B.z, (A.x*B.y-A.y*B.x));
-		//double sum = Math.sqrt(Math.pow(normal.x,2)+Math.pow(normal.y, 2)+Math.pow(normal.z, 2));
-		double sum = 1;
+		double sum = Math.sqrt(Math.pow(normal.x,2)+Math.pow(normal.y, 2)+Math.pow(normal.z, 2));
+		//double sum = 1;
 		if (normal.z>0)
 			return new Coordinate((normal.x/sum), (normal.y/sum), (normal.z/sum));
 		else
