@@ -52,8 +52,6 @@ class Bezier2 {
 	Coordinate n110 = null;
 	Coordinate n011 = null;
 	Coordinate n101 = null;
-	
-	Coordinate[][] neighbour = new Coordinate[3][3];
 	/****************************************************************
 	 * Constructor
 	 * @param T Trinagle fom original TIN
@@ -136,12 +134,6 @@ class Bezier2 {
 		return scalar;
 	}
 	
-	protected double countScalarProduct2D(Coordinate v1,Coordinate v2){
-		double scalar =  v1.x*v2.x + v1.y*v2.y;// + v1.z*v2.z;
-		//System.out.println(scalar);
-		return scalar;
-	}
-	
 	/********************************************************************
 	 * Protected method counts difference of two vectors v1, v2
 	 * @param v1 - vector
@@ -217,34 +209,9 @@ class Bezier2 {
 	 */
 	protected void setControlPoints(){
 		setQuadraticNormals();
-		
+		double koeficient = 1D;
 		//b210 = new Coordinate(1.799998632)
-/*	
-		b210 = new Coordinate(	(2*b300.x + b030.x -  countScalarProduct(countDifferenceProduct(b030,b300), normalN1) * getNormal(0.3333333D, 0D).x)/3,
-				(2*b300.y + b030.y  -  countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).y)/3,
-				(2*b300.z + b030.z -  countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).z)/3);
-		//countDifferenceProduct(b030,b300).toString();
-		b120 = new Coordinate(	(2*b030.x + b300.x -  countScalarProduct2D(countDifferenceProduct(b300,b030),  normalN2) * getNormal(0.666666D, 0D).x)/3,
-				(2*b030.y +  b300.y  -   countScalarProduct2D(countDifferenceProduct(b300,b030), normalN2)* getNormal(0.666666D, 0D).y)/3,
-				(2*b030.z + b300.z -   countScalarProduct2D(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).z)/3);
-	//	System.out.println("b120"+b120.toString());
-		b021 = new Coordinate(	(2*b030.x + b003.x -   countScalarProduct2D(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).x)/3,
-				(2*b030.y + b003.y -  countScalarProduct2D(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).y)/3,
-				(2*b030.z + b003.z -  countScalarProduct2D(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).z)/3);
-	//	System.out.println("b021"+b021.toString());
-		b012 = new Coordinate(	(2*b003.x + b030.x - countScalarProduct2D(countDifferenceProduct(b030,b003), normalN3)* getNormal(0.33333333D, 0.6666666D).x)/3,
-				(2*b003.y + b030.y -  countScalarProduct2D(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).y)/3,
-				(2*b003.z + b030.z -  countScalarProduct2D(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).z)/3);
-		//System.out.println("b012"+b012.toString());
-		b102 = new Coordinate(	(2*b003.x + b300.x -  countScalarProduct2D(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).x)/3,
-				(2*b003.y + b300.y -  countScalarProduct2D(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).y)/3,
-				(2*b003.z + b300.z -  countScalarProduct2D(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).z)/3);
-		//System.out.println("b102"+b102.toString());
-		b201 = new Coordinate( (2*b300.x + b003.x -  countScalarProduct2D(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).x)/3,
-				(2*b300.y + b003.y -  countScalarProduct2D(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).y)/3,
-				(2*b300.z + b003.z -  countScalarProduct2D(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).z)/3);
-		//System.out.println("b201"+b201.toString());
-
+		
 /*
 		b210 = new Coordinate(	(2*b300.x + b030.x )/3,
 				                (2*b300.y + b030.y )/3,
@@ -269,9 +236,8 @@ class Bezier2 {
 		b102 = new Coordinate( (2*b003.x + b300.x )/3,
 				               (2*b003.y + b300.y )/3,
 		               		   (2*b003.z + b300.z )/3);
-	*/		
-	
-	b210 = new Coordinate(	(2*b300.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b300),normalN1)*normalN1.x)/3,
+		*/	
+		b210 = new Coordinate(	(2*b300.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b300),normalN1)*normalN1.x)/3,
                 (2*b300.y + b030.y - countScalarProduct(countDifferenceProduct(b030,b300),normalN1) * normalN1.y)/3,
                 (2*b300.z + b030.z - countScalarProduct(countDifferenceProduct(b030,b300),normalN1) * normalN1.z)/3);
 //countDifferenceProduct(b030,b300).toString();
@@ -296,32 +262,33 @@ b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferencePr
        		   (2*b003.z + b300.z - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * normalN3.z)/3);
 
 
-/*
-	
+
 		
-		b210 = new Coordinate(	(2*b300.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).x)/3,
-				(2*b300.y + b030.y  - countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.3333333D, 0D).y)/3,
-				(2*b300.z + b030.z - countScalarProduct(countDifferenceProduct(b030,b300),  normalN1) * getNormal(0.33333333D, 0D).z)/3);
+		
+/*		
+		b210 = new Coordinate(	(2*b300.x + b030.x - countDifferenceProduct(b030,b300).x * getNormal(0.3333333D, 0D).x*koeficient)/3,
+				(2*b300.y + b030.y  - countDifferenceProduct(b030,b300).y * getNormal(0.3333333D, 0D).y*koeficient)/3,
+				(2*b300.z + b030.z - countDifferenceProduct(b030,b300).z * getNormal(0.33333333D, 0D).z*koeficient)/3);
 		//countDifferenceProduct(b030,b300).toString();
-		b120 = new Coordinate(	(2*b030.x + b300.x - countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).x)/3,
-				(2*b030.y +  b300.y  -  countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).y)/3,
-				(2*b030.z + b300.z -  countScalarProduct(countDifferenceProduct(b300,b030), normalN2) * getNormal(0.666666D, 0D).z)/3);
+		b120 = new Coordinate(	(2*b030.x + b300.x - countDifferenceProduct(b300,b030).x * getNormal(0.666666D, 0D).x*koeficient)/3,
+				(2*b030.y +  b300.y  -  countDifferenceProduct(b300,b030).y * getNormal(0.666666D, 0D).y*koeficient)/3,
+				(2*b030.z + b300.z -  countDifferenceProduct(b300,b030).z * getNormal(0.666666D, 0D).z*koeficient)/3);
 	//	System.out.println("b120"+b120.toString());
-		b021 = new Coordinate(	(2*b030.x + b003.x -  countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.3333333D).x)/3,
-				(2*b030.y + b003.y - countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.33333333D).y)/3,
-				(2*b030.z + b003.z - countScalarProduct(countDifferenceProduct(b003,b030), normalN2) * getNormal(0.666666D, 0.33333333D).z)/3);
+		b021 = new Coordinate(	(2*b030.x + b003.x -  countDifferenceProduct(b003,b030).x * getNormal(0.666666D, 0.3333333D).x*koeficient)/3,
+				(2*b030.y + b003.y - countDifferenceProduct(b003,b030).y * getNormal(0.666666D, 0.33333333D).y*koeficient)/3,
+				(2*b030.z + b003.z - countDifferenceProduct(b003,b030).z * getNormal(0.666666D, 0.33333333D).z*koeficient)/3);
 	//	System.out.println("b021"+b021.toString());
-		b012 = new Coordinate(	(2*b003.x + b030.x - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).x)/3,
-				(2*b003.y + b030.y - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.3333333D, 0.6666666D).y)/3,
-				(2*b003.z + b030.z - countScalarProduct(countDifferenceProduct(b030,b003), normalN3) * getNormal(0.33333333D, 0.6666666D).z)/3);
+		b012 = new Coordinate(	(2*b003.x + b030.x - countDifferenceProduct(b030,b003).x * getNormal(0.33333333D, 0.6666666D).x*koeficient)/3,
+				(2*b003.y + b030.y - countDifferenceProduct(b030,b003).y *getNormal(0.3333333D, 0.6666666D).y*koeficient)/3,
+				(2*b003.z + b030.z - countDifferenceProduct(b030,b003).z *getNormal(0.33333333D, 0.6666666D).z*koeficient)/3);
 		//System.out.println("b012"+b012.toString());
-		b102 = new Coordinate(	(2*b003.x + b300.x - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).x)/3,
-				(2*b003.y + b300.y - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).y)/3,
-				(2*b003.z + b300.z - countScalarProduct(countDifferenceProduct(b300,b003), normalN3) * getNormal(0D, 0.6666666D).z)/3);
+		b102 = new Coordinate(	(2*b003.x + b300.x - countDifferenceProduct(b300,b003).x *getNormal(0D, 0.6666666D).x*koeficient)/3,
+				(2*b003.y + b300.y - countDifferenceProduct(b300,b003).y *getNormal(0D, 0.6666666D).y*koeficient)/3,
+				(2*b003.z + b300.z - countDifferenceProduct(b300,b003).z *getNormal(0D, 0.6666666D).z*koeficient)/3);
 		//System.out.println("b102"+b102.toString());
-		b201 = new Coordinate( (2*b300.x + b003.x - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).x )/3,
-				(2*b300.y + b003.y - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).y)/3,
-				(2*b300.z + b003.z - countScalarProduct(countDifferenceProduct(b003,b300), normalN1) * getNormal(0D, 0.33333333D).z)/3);
+		b201 = new Coordinate( (2*b300.x + b003.x - countDifferenceProduct(b003,b300).x *getNormal(0D, 0.33333333D).x*koeficient)/3,
+				(2*b300.y + b003.y - countDifferenceProduct(b003,b300).y *getNormal(0D, 0.33333333D).y*koeficient)/3,
+				(2*b300.z + b003.z - countDifferenceProduct(b003,b300).z *getNormal(0D, 0.33333333D).z*koeficient)/3);
 		//System.out.println("b201"+b201.toString());
 
 	/*	
@@ -350,79 +317,10 @@ b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferencePr
 		Coordinate helpV = new Coordinate((b300.x+b030.x+b003.x)/3,
 									      (b300.y+b030.y+b003.y)/3,
 									      (b300.z+b030.z+b003.z)/3);
-		double koeficient = 1D;
 		b111 = new Coordinate( helpE.x + (helpE.x-helpV.x)/2,
 				 			helpE.y + (helpE.y-helpV.y)/2,
-				 			//(helpE.z + (helpE.z-helpV.z)/2)*koeficient);
-				 			(b300.z+b030.z+b003.z)/3);
-				 			//-5000);
-		double diffZ = 0;
-		int numberOfNeighbour = 0;
-		Coordinate normalT = (setNormalVector(countDifferenceProduct(b003,b030),countDifferenceProduct(b003,b300)));
-		System.out.println("normalT"+normalT);
-		for (int i=0; i<3; i++){
-			if ( neighbour[i][0] != null){
-				Coordinate normalAdjacet = (setNormalVector(countDifferenceProduct(neighbour[i][1],neighbour[i][0]),countDifferenceProduct(neighbour[i][2],neighbour[i][0])));
-				System.out.println("normalAdjacetT"+normalAdjacet);
-				Coordinate bb111 = null;;
-				Coordinate e1 = null;
-				Coordinate b = null;
-	Coordinate TT111 = null;
-	Coordinate TTb = null;
-				switch (i){
-					case 0: { 
-						bb111 = countDifferenceProduct(b111,b210);
-						b = b210;
-						e1 = countDifferenceProduct(b120,b210);
-						TT111 = countDifferenceProduct(b111,b120);
-						TTb = b120;
-						break;
-						
-					}
-					case 1: { 
-						bb111 = countDifferenceProduct(b111,b021);
-						b = b021;
-						e1 = countDifferenceProduct(b012,b021);
-						TT111 = countDifferenceProduct(b111,b012);
-						TTb = b012;
-						break;
-					}
-					case 2: { 
-						bb111 = countDifferenceProduct(b111,b201);
-						b = b201;
-						e1 = countDifferenceProduct(b102,b201);
-					TT111 = countDifferenceProduct(b111,b102);
-					TTb = b102;
-					}
-					
-				}
-				numberOfNeighbour ++;
-				Coordinate normalTA = normalizeVect(countCrossProduct(e1,countCrossProduct(countSumProduct(normalT,normalAdjacet),e1)));
-						
-				double d = -normalTA.x*b.x - normalTA.y*b.y - normalTA.z*b.z;
-				double param = (-b111.x*normalTA.x - b111.y*normalTA.y - b111.z*normalTA.z - d)/(normalT.z*normalTA.z);//normalT.x*normalTA.x + normalT.y*normalTA.y + normalT.z*normalTA.z);
-				
-				Coordinate normalPoint = new Coordinate(b111.x , b111.y , b111.z + param*normalT.z);
-				//double distance = Math.sqrt(countScalarProduct(normalPoint, normalPoint));
-				
-/*				System.out.println("Pro sousdaaaa ciiiiiiiiiiiiiiiiiiiislo"+i);
-				System.out.println("bod od tud pocitam"+b);
-				
-				System.out.println("normalTA"+normalTA);
-				System.out.println("vector do skalaru"+bb111);
-				System.out.println("SCAAAAAAAAAAAALAR"+countScalarProduct(bb111,normalTA));
-				System.out.println("bod od tud pocitam"+TTb);
-				
-				System.out.println("normalTA"+normalTA);
-				System.out.println("vector do skalaru"+TT111);
-				System.out.println("SCAAAAAAAAAAAALAR"+countScalarProduct(TT111,normalTA));
-		*/	
-				System.out.println("bod v rovine"+normalPoint);
-				diffZ += normalPoint.z;//b111.z - countScalarProduct(bb111,normalTA)*normalTA.z;
-			}	
-		}
-		b111.z = diffZ/numberOfNeighbour;
-		//b111.z = b111.z + diffZ/numberOfNeighbour;
+				 			(helpE.z + (helpE.z-helpV.z)/2)*koeficient);
+		
 		//System.out.println("b111"+b111.toString());
 	}
 	
@@ -483,24 +381,6 @@ b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferencePr
 				System.out.println(b111.toString());
 			
 		}	
-		System.out.println("Neigbour 1");
-		if (neighbour[0]!=null){
-			System.out.println(neighbour[0][0]);
-			System.out.println(neighbour[0][1]);
-			System.out.println(neighbour[0][2]);
-		}
-		System.out.println("Neigbour 2");
-		if (neighbour[1]!=null){
-			System.out.println(neighbour[1][0]);
-			System.out.println(neighbour[1][1]);
-			System.out.println(neighbour[1][2]);
-		}
-		System.out.println("Neigbour 1");
-		if (neighbour[2]!=null){
-			System.out.println(neighbour[2][0]);
-			System.out.println(neighbour[2][1]);
-			System.out.println(neighbour[2][2]);
-		}
 		System.out.println("======================================");
 	}
 	
@@ -520,16 +400,7 @@ b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferencePr
 		
 	}
 	
-	/************	public boolean compare(Bezier3 T) {
-		if ((T.P400.equals2D(P400) || T.P400.equals2D(P040) || T.P400.equals2D(P004))
-				&& (T.P040.equals2D(P400) || T.P040.equals2D(P040) || T.P040.equals2D(P004))
-				&& (T.P004.equals2D(P400) || T.P004.equals2D(P040) || T.P004.equals2D(P004))) {
-
-			return true;
-		}
-
-		return false;
-	}************************************************************
+	/************************************************************************
 	 * Protected method for getting envelope of triangle
 	 * @return envelope of triangle
 	 */
@@ -547,48 +418,6 @@ b102 = new Coordinate( (2*b003.x + b300.x - countScalarProduct(countDifferencePr
 
 		return trianglesPoints.getEnvelopeInternal();
 	}
-	
-	public boolean compare(Bezier2 T) {
-		if ((T.b003.equals2D(b003) || T.b003.equals2D(b030) || T.b003.equals2D(b300))
-				&& (T.b030.equals2D(b003) || T.b030.equals2D(b030) || T.b030.equals2D(b300))
-				&& (T.b300.equals2D(b003) || T.b300.equals2D(b030) || T.b300.equals2D(b300))) {
-
-			return true;
-		}
-
-		return false;
-	}
-	
-	public boolean containTwoPoints(Coordinate P1, Coordinate P2) {
-		if ((b300.equals2D(P1) || b030.equals2D(P1) || b003.equals2D(P1))
-				&& (b300.equals2D(P2) || b030.equals2D(P2) || b003.equals2D(P2)))
-			return true;
-		return false;
-	}
-	
-	protected Coordinate setNormalVector(Coordinate A, Coordinate B){
-		Coordinate normal = new Coordinate(A.y*B.z-A.z*B.y, A.z*B.x-A.x*B.z, (A.x*B.y-A.y*B.x));
-		double sum = Math.sqrt(Math.pow(normal.x,2)+Math.pow(normal.y, 2)+Math.pow(normal.z, 2));
-		//double sum = 1;
-		if (normal.z>0)
-			return new Coordinate((normal.x/sum), (normal.y/sum), (normal.z/sum));
-		else
-			return new Coordinate((-1)*(normal.x/sum), (-1)*(normal.y/sum), (-1)*(normal.z/sum));
-	}
-
-	
-	
-	protected Coordinate countCrossProduct(Coordinate A, Coordinate B){
-		Coordinate normal = new Coordinate(A.y*B.z-A.z*B.y, A.z*B.x-A.x*B.z, (A.x*B.y-A.y*B.x));
-		//double sum = Math.sqrt(Math.pow(normal.x,2)+Math.pow(normal.y, 2)+Math.pow(normal.z, 2));
-		double sum = 1;
-		if (normal.z>0)
-			return new Coordinate((normal.x/sum), (normal.y/sum), (normal.z/sum));
-		else
-			return new Coordinate((-1)*(normal.x/sum), (-1)*(normal.y/sum), (-1)*(normal.z/sum));
-		
-	}
-
 
 }
 

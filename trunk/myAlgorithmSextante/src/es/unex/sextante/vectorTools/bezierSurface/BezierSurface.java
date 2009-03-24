@@ -66,39 +66,6 @@ public class BezierSurface {
 			return new Coordinate((-1)*(normal.x/sum), (-1)*(normal.y/sum), (-1)*(normal.z/sum));
 	}
 	
-	private void setNeighbour(Bezier2 T){
-		Coordinate[] P = {new Coordinate ((T.b300.x+T.b030.x)/2,(T.b300.y+T.b030.y)/2),
-							new Coordinate ((T.b030.x+T.b003.x)/2,(T.b030.y+T.b003.y)/2),
-							new Coordinate ((T.b003.x+T.b300.x)/2,(T.b003.y+T.b300.y)/2)};
-		Coordinate[] PT = {new Coordinate (T.b300), new Coordinate (T.b030), new Coordinate (T.b003), new Coordinate (T.b300)};
-
-
-		
-		for (int i=0; i<3; i++){
-			List listOfTrianglesIndex = null;
-			try{
-				listOfTrianglesIndex  = trianglesIndex.search(new Envelope(P[i]));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}	
-		//	System.out.println("VELIKOST====================================================="+listOfTrianglesIndex.size());
-		//	System.out.println("pro bod"+ P[i]);
-			Iterator iterTrianglesIndex = listOfTrianglesIndex.iterator();
-			while (iterTrianglesIndex.hasNext()){
-				Bezier2 TT = bezierTriangles[(Integer)((Data)iterTrianglesIndex.next()).getValue(0)];
-				//TT.toStringa();
-				if (!TT.compare(T)){
-					if (TT.containTwoPoints(PT[i], PT[i+1])){
-						T.neighbour[i][0] = TT.b300;
-						T.neighbour[i][1] = TT.b030;
-						T.neighbour[i][2] = TT.b003;
-					}
-				}		
-			}
-		}			
-	}
-	
 	/*************************************************************************
 	 * The method searchs normals vector for vertex P of triangle T
 	 * @param T - triangle
@@ -260,10 +227,8 @@ public class BezierSurface {
 			bezierTriangles[trianglesIndex].setNormalVector(searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b300),
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b030),
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b003)); 
-			setNeighbour(bezierTriangles[trianglesIndex]);
 			bezierTriangles[trianglesIndex].setControlPoints();
 			bezierTriangles[trianglesIndex].toStringa();
-			
 		}
 		
 		
