@@ -36,6 +36,8 @@ import com.vividsolutions.jts.geom.Envelope;
 public class BezierSurface {
 	Coordinate[][] triangles;
 	Bezier2[] bezierTriangles;
+	Bezier[] bezierTriangles2;
+	int numberOfBezier2 = 0;
 	RTree trianglesIndex;
 	//int LoL;
 	Data data;
@@ -45,6 +47,9 @@ public class BezierSurface {
 		//this.LoL = LoL;
 		this.triangles = triangles;
 		bezierTriangles = new Bezier2[triangles.length];
+		bezierTriangles2 = new Bezier[triangles.length*3];
+		
+		
 		createTrianglesIndex();
 		createSurface();
 	}
@@ -65,6 +70,20 @@ public class BezierSurface {
 		else
 			return new Coordinate((-1)*(normal.x/sum), (-1)*(normal.y/sum), (-1)*(normal.z/sum));
 	}
+	
+	
+	/******************************************************************
+	 * Protected method counts Scalar product of two vectors v1,v2
+	 * @param v1 - vector
+	 * @param v2 - vector
+	 * @return - scalar product
+	 */
+	protected double countScalarProduct(Coordinate v1,Coordinate v2){
+		double scalar =  v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+		//System.out.println(scalar);
+		return scalar;
+	}
+	
 	
 	/*************************************************************************
 	 * The method searchs normals vector for vertex P of triangle T
@@ -96,32 +115,46 @@ public class BezierSurface {
 			char index = TT.compareReturnIndex(P);
 			switch (index){
 				case 'A':{
-					//System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-					//TT.toStringa();
-					Coordinate v1 = setVector(P,TT.b030);
-					Coordinate v2 = setVector(P,TT.b003);
-					vectors.add(setNormalVector(v1,v2));
-					break;
-				}
-				case 'B':{
-		//			System.out.println("Jsem v BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
-		//			TT.toStringa();
-					Coordinate v1 = setVector(P,TT.b300);
-					Coordinate v2 = setVector(P,TT.b003);
-					vectors.add(setNormalVector(v1,v2));
-					break;
-				}
-				case 'C':{
-			//		System.out.println("Jsem v CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
-			//		TT.toStringa();
-					Coordinate v1 = setVector(P,TT.b030);
-					Coordinate v2 = setVector(P,TT.b300);
-			//		System.out.println(v1);
-			//		System.out.println(v2);
-					
-					vectors.add(setNormalVector(v1,v2));
-				}	
-			}
+					//		System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+							//TT.toStringa();
+							Coordinate v1 = setVector(P,TT.b030);
+							Coordinate v2 = setVector(P,TT.b003);
+							double scalar = countScalarProduct(v1,v2);
+							double alfa = Math.acos(scalar/(countScalarProduct(v1,v1)*countScalarProduct(v2,v2)));
+							//sumAlfa += alfa;
+							System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+alfa);
+							Coordinate normal = setNormalVector(v1,v2);
+							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
+						
+							break;
+						}
+						case 'B':{
+						//	System.out.println("Jsem v BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+				//			TT.toStringa();
+							Coordinate v1 = setVector(P,TT.b300);
+							Coordinate v2 = setVector(P,TT.b003);
+							double scalar = countScalarProduct(v1,v2);
+							double alfa = Math.acos(scalar/(countScalarProduct(v1,v1)*countScalarProduct(v2,v2)));
+							//sumAlfa += alfa;
+							System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+alfa);
+							Coordinate normal = setNormalVector(v1,v2);
+							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
+							break;
+						}
+						case 'C':{
+						//	System.out.println("Jsem v CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+					//		TT.toStringa();
+							Coordinate v1 = setVector(P,TT.b300);
+							Coordinate v2 = setVector(P,TT.b030);
+					//		System.out.println(v1);
+					//		System.out.println(v2);
+							double scalar = countScalarProduct(v1,v2);
+							double alfa = Math.acos(scalar/(countScalarProduct(v1,v1)*countScalarProduct(v2,v2)));
+							//sumAlfa += alfa;
+							System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+alfa);
+							Coordinate normal = setNormalVector(v1,v2);
+							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
+						}				}
 		}
 		//System.out.println("LIST"+vectors.size());
 		return vectors;
@@ -161,11 +194,12 @@ public class BezierSurface {
 	}
 	
 	public Coordinate[][] getBezierTriangles(int LoL){
-		Coordinate[][] newTriangles = new Coordinate[bezierTriangles.length * (int)Math.pow(LoL+1,2)][3];
+		Coordinate[][] newTriangles = new Coordinate[bezierTriangles2.length * (int)Math.pow(LoL+1,2)][3];
 		int indexOfNewTriangles = 0;
 		
-		for (int k = 0; k<bezierTriangles.length; k++){
+		for (int k = 0; k<bezierTriangles2.length; k++){
 			//System.out.println("index"+k);
+			bezierTriangles2[k].toStringa();
 			double [] indexes = new double[LoL+2];
 			double koeficient = 1/((double)LoL+1);
 			for (int i = 0; i<=LoL+1; i++){
@@ -176,9 +210,9 @@ public class BezierSurface {
 			int maxTj = LoL;
 			for (int i = 0; i<=maxTi;i++){
 				for (int j = 0; j<=maxTj;j++){
-					newTriangles[indexOfNewTriangles][0] = bezierTriangles[k].getElevation(indexes[i], indexes[j]);
-					newTriangles[indexOfNewTriangles][1] = bezierTriangles[k].getElevation(indexes[i], indexes[j+1]);
-		            newTriangles[indexOfNewTriangles++][2] = bezierTriangles[k].getElevation(indexes[i+1], indexes[j]);
+					newTriangles[indexOfNewTriangles][0] = bezierTriangles2[k].getElevation(indexes[i], indexes[j]);
+					newTriangles[indexOfNewTriangles][1] = bezierTriangles2[k].getElevation(indexes[i], indexes[j+1]);
+		            newTriangles[indexOfNewTriangles++][2] = bezierTriangles2[k].getElevation(indexes[i+1], indexes[j]);
 					//TTT.toStringa();
 	//				System.out.println("Troju"+ indexes[i]+","+ indexes[j]+"  "+ indexes[i]+","+  indexes[j+1]+"  "+ indexes[i+1]+","+  indexes[j]);
 	//				System.out.println();				
@@ -189,9 +223,9 @@ public class BezierSurface {
 			maxTj = LoL-1;
 			for (int i = 1; i<=maxTi;i++){
 				for (int j = 0; j<=maxTj;j++){
-					newTriangles[indexOfNewTriangles][0] = bezierTriangles[k].getElevation(indexes[i], indexes[j]);
-					newTriangles[indexOfNewTriangles][1] = bezierTriangles[k].getElevation(indexes[i], indexes[j+1]);
-					newTriangles[indexOfNewTriangles++][2] = bezierTriangles[k].getElevation(indexes[i-1], indexes[j+1]);
+					newTriangles[indexOfNewTriangles][0] = bezierTriangles2[k].getElevation(indexes[i], indexes[j]);
+					newTriangles[indexOfNewTriangles][1] = bezierTriangles2[k].getElevation(indexes[i], indexes[j+1]);
+					newTriangles[indexOfNewTriangles++][2] = bezierTriangles2[k].getElevation(indexes[i-1], indexes[j+1]);
 					//trianglesDTBezier.insertToTree(TTT, TTT.key);
 	//				System.out.println("Troju"+ indexes[i]+","+ indexes[j]+"  "+ indexes[i]+","+  indexes[j+1]+"  "+ indexes[j+1]+","+  indexes[i-1]);
 	//				System.out.println();				
@@ -229,6 +263,10 @@ public class BezierSurface {
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b003)); 
 			bezierTriangles[trianglesIndex].setControlPoints();
 			bezierTriangles[trianglesIndex].toStringa();
+			for (int i = 0; i<3; i++){
+				bezierTriangles2[numberOfBezier2++] = bezierTriangles[trianglesIndex].getBezierPatch(i);
+			}
+			
 		}
 		
 		
