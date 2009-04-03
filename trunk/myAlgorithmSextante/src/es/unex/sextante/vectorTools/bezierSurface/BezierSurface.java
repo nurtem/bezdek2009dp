@@ -112,7 +112,7 @@ public class BezierSurface {
 		while (iterTrianglesIndex.hasNext()){
 			Bezier2 TT = bezierTriangles[(Integer)((Data)iterTrianglesIndex.next()).getValue(0)];
 			//TT.toStringa();
-			char index = TT.compareReturnIndex(P);
+			char index = 'A';//TT.compareReturnIndex(P);
 			switch (index){
 				case 'A':{
 					//		System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
