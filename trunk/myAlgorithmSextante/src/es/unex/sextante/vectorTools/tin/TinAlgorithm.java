@@ -86,8 +86,8 @@ public class TinAlgorithm extends GeoAlgorithm {
 		m_useGeometry_Z = m_Parameters.getParameterValueAsBoolean(GEOMETRY_Z);
 		
 		
-		Class types[] = {Integer.class};
-		String sNames[] = {"ID"};
+		Class types[] = {Integer.class, String.class, Integer.class};
+		String sNames[] = {"ID", "HardLines", "type"};
 		m_Triangles = getNewVectorLayer(TRIANGLES,
 										"TIN_"+m_Points.getName(),
 										IVectorLayer.SHAPE_TYPE_POLYGON,
@@ -136,7 +136,7 @@ public class TinAlgorithm extends GeoAlgorithm {
 		Triangle[] triangles = triangulation.getTriangles();
 
 		for (int j = 0; j < triangles.length; j++) {
-			Object[] record = {new Integer(j)};
+			Object[] record = {new Integer(j),"",-1};
 			Geometry triangle = getPolygon(triangles[j]);
 			if (triangle != null){
 			//	System.out.println(triangle.toString());

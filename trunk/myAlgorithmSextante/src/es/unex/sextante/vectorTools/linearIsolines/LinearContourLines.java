@@ -74,8 +74,10 @@ public class LinearContourLines {
 					maxZ = triangle[1].z;
 				if (maxZ < triangle[2].z)
 					maxZ = triangle[2].z;
-				elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
-
+				if (minZ >= 0)
+					elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
+				else
+					elev = ((int)(minZ/elevatedStep))*elevatedStep;
 		//		TriangleDT T = new TriangleDT(triangle[0],triangle[1],triangle[2]);//	T.toStringa();
 		//		T.toStringa();		
 						
@@ -164,7 +166,8 @@ public class LinearContourLines {
 		
 		for (int i = 0; i<triangles.length; i++ ){
 			trianglesIsoLines(triangles[i]);
-		//	System.out.println("TROJUHELNIK"+ i);
+			triangles[i] = null;
+			//	System.out.println("TROJUHELNIK"+ i);
 		}
 		
 		//sortIsolines(contours, minIso, maxIso, elevatedStep);

@@ -362,18 +362,8 @@ public class TINWithFixedLines {
 						//	T.toStringa();
 							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
 							//	System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
-								T.haveBreakLine = true;
-								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
-									T.typeBreakLine = 0;
-								}
-								else
-									if ((T.B.compare(line.A)&&T.C.compare(line.B))||(T.C.compare(line.B)&&T.B.compare(line.A))){
-										T.typeBreakLine = 1;
-									}
-									else{
-										T.typeBreakLine = 2;
-								}
-							}
+								setTypeOfBreakLine(T, line);
+							}	
 						if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
@@ -419,17 +409,7 @@ public class TINWithFixedLines {
 						//	System.out.println(line.toString());
 							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
 							//	System.out.println("je to breaklineDRUHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-								T.haveBreakLine = true;
-								if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
-									T.typeBreakLine = 0;
-								}
-								else
-									if ((T.B.compare(line.A)&&T.C.compare(line.B))||(T.C.compare(line.B)&&T.B.compare(line.A))){
-										T.typeBreakLine = 1;
-									}
-									else{
-										T.typeBreakLine = 2;
-									}
+								setTypeOfBreakLine(T, line);
 							}	
 							if (testIsInside(T, trianglesToChange)){
 								try{
@@ -459,5 +439,68 @@ public class TINWithFixedLines {
 			}
 		}
 		return triangles;
+	}
+	
+	protected void setTypeOfBreakLine (TriangleDT T, LineDT line){
+		if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
+			if (!T.haveBreakLine){
+				T.typeBreakLine = 0;
+			}
+			else{
+				if (T.typeBreakLine == 1){
+					T.typeBreakLine = 4;
+				}
+				else{
+					if (T.typeBreakLine == 2){
+						T.typeBreakLine = 3;	
+					}
+					else{
+						if (T.typeBreakLine == 5){
+							T.typeBreakLine = 6;
+						}
+					}
+				}
+			}
+		}
+		else
+			if ((T.B.compare(line.A)&&T.C.compare(line.B))||(T.C.compare(line.B)&&T.B.compare(line.A))){
+				if (!T.haveBreakLine){
+					T.typeBreakLine = 1;
+				}
+				else{
+					if (T.typeBreakLine == 0){
+						T.typeBreakLine = 4;
+					}
+					else{
+						if (T.typeBreakLine == 2){
+							T.typeBreakLine = 5;	
+						}
+						else{
+							if (T.typeBreakLine == 3)
+								T.typeBreakLine = 6;
+						}
+					}	
+				}
+			}
+			else{
+				if (!T.haveBreakLine){
+					T.typeBreakLine = 2;
+				}
+				else{
+					if (T.typeBreakLine == 0){
+						T.typeBreakLine = 4;
+					}
+					else{
+						if (T.typeBreakLine == 2){
+							T.typeBreakLine = 5;	
+						}
+						else{
+							if (T.typeBreakLine == 4)
+								T.typeBreakLine = 6;
+						}
+					}
+				}
+		}
+		T.haveBreakLine = true;
 	}
 }
