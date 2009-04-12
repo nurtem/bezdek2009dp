@@ -23,11 +23,31 @@ import es.unex.sextante.core.GeoAlgorithm;
 import es.unex.sextante.core.Sextante;
 import es.unex.sextante.dataObjects.IFeature;
 import es.unex.sextante.dataObjects.IFeatureIterator;
+import es.unex.sextante.dataObjects.IRecord;
 import es.unex.sextante.dataObjects.IVectorLayer;
 import es.unex.sextante.exceptions.GeoAlgorithmExecutionException;
 import es.unex.sextante.outputs.OutputVectorLayer;
 
 public class BezierSurfaceAlgorithm extends GeoAlgorithm {
+	
+
+	private class Triangle{
+		int index;
+		Coordinate coord[] = new Coordinate[3];
+		int typeOfBreakLine;
+		Triangle (int index, Coordinate[] coord, int typeOfBreakLine){
+			this.index = index;
+			this.coord = coord;
+			this.typeOfBreakLine = typeOfBreakLine;
+		}
+		Triangle (int index, Coordinate A, Coordinate B, Coordinate C, int typeOfBreakLine){
+			this.index = index;
+			coord[0] = A;
+			coord[1] = B;
+			coord[2] = C;
+			this.typeOfBreakLine = typeOfBreakLine;
+		}
+	}
 	
 	public static final String TIN = "TIN";
 	public static final String TINB = "TINB";
@@ -42,6 +62,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	
 	private RTree trianglesIndex;
 	Coordinate [][] triangles;
+	List breakLines = new LinkedList();
 	Bezier miniBezierTriangles[];
 	
 	public void defineCharacteristics() {
@@ -96,6 +117,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		triangles = new Coordinate[iShapeCount][3];
 		
 		IFeatureIterator iter = m_Triangles.iterator();
+		//List breakLines = new LinkedList();
 		try{ 
 			dd.addField(Integer.class);
 			PageStore ps = new MemoryPageStore(dd);
@@ -103,7 +125,13 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 			while(iter.hasNext()){
 				IFeature feature = iter.next();
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
+				IRecord record = feature.getRecord();
+				//System.out.println(record.getValue(2).toString());
+				if (((String)record.getValue(1)) == "breakLine")
+					breakLines.add(i, (Integer)record.getValue(2));
+				
 				triangles [i] = trianglePolygon.getCoordinates();
+				//System.out.println(triangles[i]);
 				data = new Data(dd);
 				data.addValue(i);
 				trianglesIndex.insert(trianglePolygon.getEnvelopeInternal(), data);
@@ -123,8 +151,10 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 			e.printStackTrace(); 
 		}	
 		
+		//
+		
 		for (i = 0; i<triangles.length; i++)
-			for (int j=0; j<3; j++)
+			for (int j=0; j<3;j++)
 				triangles[i][j].z /= scaleZ;
 		
 
@@ -132,9 +162,9 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		int indexOfInterpolatedTriangles = 0;
 		for (int j = 0; j < triangles.length; j++) {
 			Bezier2 newBezierTriangles = new Bezier2(triangles[j]);
-			newBezierTriangles.setNormalVector(searchVectors(newBezierTriangles,newBezierTriangles.b300),
-											   searchVectors(newBezierTriangles,newBezierTriangles.b030),
-											   searchVectors(newBezierTriangles,newBezierTriangles.b003)); 
+			newBezierTriangles.setNormalVector(searchVectors(newBezierTriangles,newBezierTriangles.b300, j),
+											   searchVectors(newBezierTriangles,newBezierTriangles.b030, j),
+											   searchVectors(newBezierTriangles,newBezierTriangles.b003, j)); 
 			newBezierTriangles.setControlPoints();
 			newBezierTriangles.getBezierPatch();
 				//newBezierTriangles.getBezierPatch(k).toStringa();
@@ -215,10 +245,10 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	 * @param P - vertex of triangle
 	 * @return - linked list of vectors
 	 */
-	private LinkedList searchVectors(Bezier2 bezierT, Coordinate P){
+	private LinkedList searchVectors(Bezier2 bezierT, Coordinate P, int indexOfBezierT){
 		//System.out.println("PRO BOD> "+P.toString());
 		LinkedList vectors = new LinkedList();
-		LinkedList points = new LinkedList();
+		//LinkedList points = new LinkedList();
 		//searsching of triangles by envelope P
 		
 		List listOfTrianglesIndex = null;
@@ -230,15 +260,27 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		}	
 
 		Iterator iterTrianglesIndex = listOfTrianglesIndex.iterator();
-	//	System.out.println("SIYE / vypisuju trojuhelniky " +listOfTrianglesIndex.size());
+	
+
+		
+		//Iterator iterBreakLines = breakLines.iterator();
+	
+
+		
+		//	System.out.println("SIYE / vypisuju trojuhelniky " +listOfTrianglesIndex.size());
 		
 	//	System.out.println("POINT"+P.toString());
+		boolean haveBreakLine = false;
+		boolean testingBreakLine = true;
 		while (iterTrianglesIndex.hasNext()){
-			Coordinate[] TT = triangles[(Integer)((Data)iterTrianglesIndex.next()).getValue(0)];
+			int index = (Integer)((Data)iterTrianglesIndex.next()).getValue(0);
+			Coordinate[] TT = triangles[index];
 			//TT.toStringa();
-			char index = compareReturnIndex(TT, P);
-			switch (index){
+			
+			switch (compareReturnIndex(TT, P)){
 				case 'A':{
+							if (testingBreakLine)
+								haveBreakLine = testOfBreakLine('A', index);
 					//		System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 							//TT.toStringa();
 							Coordinate v1 = Bezier2.setVector(P,TT[1]);
@@ -253,6 +295,8 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 							break;
 						}
 						case 'B':{
+							if (testingBreakLine)
+								haveBreakLine = testOfBreakLine('B', index);
 						//	System.out.println("Jsem v BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
 				//			TT.toStringa();
 							Coordinate v1 = Bezier2.setVector(P,TT[0]);
@@ -266,6 +310,8 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 							break;
 						}
 						case 'C':{
+							if (testingBreakLine)
+								haveBreakLine = testOfBreakLine('C', index);
 						//	System.out.println("Jsem v CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 					//		TT.toStringa();
 							Coordinate v1 = Bezier2.setVector(P,TT[0]);
@@ -278,11 +324,145 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 					//		System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+alfa);
 							Coordinate normal = Bezier2.setNormalVector(v1,v2);
 							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
-						}				}
+						}				
+					}
+				if (haveBreakLine){
+					testingBreakLine = false;
+					haveBreakLine = false;
+					vectors = null;
+					iterTrianglesIndex = setCorectTrianglesIndex(listOfTrianglesIndex, bezierT,  P, indexOfBezierT).iterator();
+					
+				}	
 		}
 		//System.out.println("LIST"+vectors.size());
 		return vectors;
 		
+	}
+	
+	
+	protected LinkedList setCorectTrianglesIndex(List listOfTrianglesIndex, Bezier2 bezierT, Coordinate P, int indexOfBezierT){
+		LinkedList allTriangles = new LinkedList();
+		LinkedList newTriangles = new LinkedList();
+		Iterator iterOfTrianglesIndex = listOfTrianglesIndex.iterator();
+		int typeOfBreakLine;
+		while (iterOfTrianglesIndex.hasNext()){
+			Data data = (Data)iterOfTrianglesIndex.next();
+			int index = (Integer)(data).getValue(0);
+			Coordinate[] TT = triangles[index];
+			Object typeOfBreakL = breakLines.get(index);
+			if (typeOfBreakL!=null)
+				typeOfBreakLine = ((Integer)typeOfBreakL).intValue();
+			else
+				typeOfBreakLine = -1;
+			
+			switch (compareReturnIndex(TT, P)){
+				case 'A':{
+					newTriangles.add(index, new Triangle(index,TT, typeOfBreakLine));
+					break;
+				}	
+				case 'B':{
+					if ((typeOfBreakLine < 3)&&(typeOfBreakLine != -1))
+						typeOfBreakLine = (typeOfBreakLine+2)%3;
+					else
+						if (typeOfBreakLine != 6){
+							typeOfBreakLine = (typeOfBreakLine+2)%3 + 3;
+						}
+					newTriangles.add(index, new Triangle(index, TT[1], TT[2], TT[0], typeOfBreakLine));
+					break;
+				}
+				case 'C':{
+					if ((typeOfBreakLine < 3)&&(typeOfBreakLine != -1))
+						typeOfBreakLine = (typeOfBreakLine+1)%3;
+					else
+						if (typeOfBreakLine != 6){
+							typeOfBreakLine = (typeOfBreakLine+1)%3 + 3;
+						}
+					newTriangles.add(index, new Triangle(index,TT,2));
+					break;
+				}
+			}
+		}
+		Triangle T = (Triangle)allTriangles.get(indexOfBezierT);
+		newTriangles.add(indexOfBezierT, T);
+		allTriangles.remove(indexOfBezierT);
+		
+		//TEST OF TRIANGLES ON THE RIGHT SIDE
+		Triangle rightT = T;
+		while ((rightT.typeOfBreakLine != 6)||(rightT.typeOfBreakLine != 3)||(rightT.typeOfBreakLine != 2)||(rightT.typeOfBreakLine != 5)){
+			Iterator iterAllTriangles = allTriangles.iterator();
+			while (iterAllTriangles.hasNext()){
+				T = (Triangle)iterAllTriangles.next();
+				if (rightT.coord[2].equals2D(T.coord[1])){
+					newTriangles.add(T.index, T);
+					allTriangles.remove(T.index);
+					rightT = T;
+				}
+			}
+		}
+		//TEST OF TRIANGLES ON THE LEFT SIDE
+		Triangle leftT = (Triangle)newTriangles.get(indexOfBezierT);
+		while ((leftT.typeOfBreakLine != 6)||(leftT.typeOfBreakLine != 3)||(leftT.typeOfBreakLine != 0)||(leftT.typeOfBreakLine != 4)){
+			Iterator iterAllTriangles = allTriangles.iterator();
+			while (iterAllTriangles.hasNext()){
+				T = (Triangle)iterAllTriangles.next();
+				if (leftT.coord[1].equals2D(T.coord[2])){
+					newTriangles.add(T.index, T);
+					allTriangles.remove(T.index);
+					leftT = T;
+				}
+			}
+		}
+		
+		//Creating of list of indexes for computing normals
+		allTriangles = new LinkedList();
+		try{
+			Iterator iterOfNewTriangles = newTriangles.iterator();
+			while (iterOfNewTriangles.hasNext()){
+				data = new Data(dd);
+				data.addValue(((Triangle)iterOfNewTriangles.next()).index);
+				allTriangles.add(data);
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace(); 
+		}
+		
+		return allTriangles;
+		
+	}
+	
+	protected boolean testOfBreakLine(char vertex, int indexTT){
+		if (breakLines.size() > 0){
+			Iterator iterBreakLines = breakLines.iterator();
+			int typeOfBreakLine;
+			Object typeOfBreakL = breakLines.get(indexTT);
+			if (typeOfBreakL!=null)
+				typeOfBreakLine = ((Integer)typeOfBreakL).intValue();
+			else
+				typeOfBreakLine = -1;
+		
+			switch (vertex){
+				case 'A':{
+					if (typeOfBreakLine == 1)
+						return false;
+					else
+						return true;
+				}
+				case 'B':{
+					if (typeOfBreakLine == 2)
+						return false;
+					else
+						return true;
+				}
+				case 'C':{
+					if (typeOfBreakLine == 0)
+						return false;
+					else
+						return true;
+				}
+			}
+		}	
+		return false;
 	}
 	
 	/******************************************************************
@@ -290,7 +470,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	 * @param P - points for comparing
 	 * @return index A,B,C which point is same or N if point P not exist in triangle
 	 */
-	public char compareReturnIndex(Coordinate[] triangle, Coordinate P){
+	protected char compareReturnIndex(Coordinate[] triangle, Coordinate P){
 		if (P.equals2D(triangle[0]))
 			return 'A';
 		if (P.equals2D(triangle[1]))
