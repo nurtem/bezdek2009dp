@@ -166,34 +166,34 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 											   searchVectors(newBezierTriangles,newBezierTriangles.b030, j),
 											   searchVectors(newBezierTriangles,newBezierTriangles.b003, j)); 
 			newBezierTriangles.setControlPoints();
-			newBezierTriangles.getBezierPatch();
+
+			for (int k = 0; k<3; k++){
 				//newBezierTriangles.getBezierPatch(k).toStringa();
+				Coordinate newTin[][] = getInterpolatedTriangles(newBezierTriangles.getBezierPatch(k));
 			
-			Coordinate newTin[][] = getInterpolatedTriangles(newBezierTriangles);
-			
-			for (int l = 0; l<newTin.length; l++){
-				Object[] record = {new Integer(indexOfInterpolatedTriangles)};
-				GeometryFactory gf = new GeometryFactory();
-				Coordinate[] coords = new Coordinate[4];
-				for (int m=0; m<3; m++){
-					coords[m] = newTin[l][m];
-					coords[m].z *= scaleZ;
-				//	System.out.println(coords[m]);
-				//	System.out.println("scale"+scaleZ);
+				for (int l = 0; l<newTin.length; l++){
+					Object[] record = {new Integer(indexOfInterpolatedTriangles)};
+					GeometryFactory gf = new GeometryFactory();
+					Coordinate[] coords = new Coordinate[4];
+					for (int m=0; m<3; m++){
+						coords[m] = newTin[l][m];
+						coords[m].z *= scaleZ;
+					//	System.out.println(coords[m]);
+					//	System.out.println("scale"+scaleZ);
+					}
+					coords[3] = newTin[l][0];
+					//coords[3].z *= scaleZ;
+					LinearRing ring = gf.createLinearRing(coords);
+					m_TrianglesOut.addFeature(gf.createPolygon(ring, null), record);
+					indexOfInterpolatedTriangles++;
 				}
-				coords[3] = newTin[l][0];
-				//coords[3].z *= scaleZ;
-				LinearRing ring = gf.createLinearRing(coords);
-				m_TrianglesOut.addFeature(gf.createPolygon(ring, null), record);
-				indexOfInterpolatedTriangles++;
-			
 			}
 		}	
 		return !m_Task.isCanceled();
 	}
 	
 	
-	public Coordinate[][] getInterpolatedTriangles(Bezier2 bezierTriangles2){
+	public Coordinate[][] getInterpolatedTriangles(Bezier bezierTriangles2){
 		Coordinate[][] newTriangles = new Coordinate[(int)Math.pow(m_LoD+1,2)][3];
 		int indexOfNewTriangles = 0;
 		
