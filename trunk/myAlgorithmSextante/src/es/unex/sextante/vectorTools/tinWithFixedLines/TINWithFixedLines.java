@@ -99,22 +99,26 @@ public class TINWithFixedLines {
 					trianglesToChange.add(T);
 				}
 				else{	// test if line or vertex is containg in triangle
-					if (lineContainsPoint(newL, T.A)&&!T.A.compare(line.A)&&!T.A.compare(line.B)){
+					if (lineContainsPoint(newL, T.A)&&!T.A.equals2D(line.A)&&!T.A.equals2D(line.B)){
 						triangles.set(index, null);
 						trianglesToChange.add(T);
 					}
 					else{
-						if (lineContainsPoint(newL, T.B)&&!T.B.compare(line.A)&&!T.B.compare(line.B)){
+						if (lineContainsPoint(newL, T.B)&&!T.B.equals2D(line.A)&&!T.B.equals2D(line.B)){
 							triangles.set(index, null);
 							trianglesToChange.add(T);
 						}
 						else{
-							if (lineContainsPoint(newL, T.C)&&!T.C.compare(line.A)&&!T.C.compare(line.B)){
+							if (lineContainsPoint(newL, T.C)&&!T.C.equals2D(line.A)&&!T.C.equals2D(line.B)){
 								triangles.set(index, null);;
 								trianglesToChange.add(T);
 							}
 						}	
-					}	
+					}
+					if (T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
+						triangles.set(index, null);;
+						trianglesToChange.add(T);
+					}
 				}	
 		
 			}
@@ -153,10 +157,10 @@ public class TINWithFixedLines {
 		
 	}
 	
-	private double setZ(PointDT A, TriangleDT T){
-		if (T.A.compare(A))
+	private double setZ(Coordinate A, TriangleDT T){
+		if (T.A.equals2D(A))
 			return T.A.z;
-		if (T.B.compare(A))
+		if (T.B.equals2D(A))
 			return T.B.z;
 		return T.C.z;
 		
@@ -173,7 +177,7 @@ public class TINWithFixedLines {
 	   *    
        */		
 	
-	private boolean lineContainsPoint(LineString line, PointDT P){
+	private boolean lineContainsPoint(LineString line, Coordinate P){
 		Coordinate[] newPoint={P}; 
 		CoordinateArraySequence newPointP=new CoordinateArraySequence(newPoint);
 		Point newP=new Point(newPointP,new GeometryFactory());
@@ -192,10 +196,10 @@ public class TINWithFixedLines {
 	   *    
        */		
 	
-	private boolean listContainsPoint(LinkedList points, PointDT P){
+	private boolean listContainsPoint(LinkedList points, Coordinate P){
 		Iterator iter = points.iterator();
 		while (iter.hasNext()){		
-			if (((PointDT)iter.next()).compare(P))
+			if (((Coordinate)iter.next()).equals2D(P))
 				return true;
 		}
 		return false;
@@ -213,7 +217,7 @@ public class TINWithFixedLines {
 	   *    
 	   */		
 	
-	private LinkedList getPoints(LinkedList trianglesT, PointDT A, PointDT B){
+	private LinkedList getPoints(LinkedList trianglesT, Coordinate A, Coordinate B){
 		Iterator iter = trianglesT.iterator();
 		LinkedList points = new LinkedList();
 		TriangleDT T = (TriangleDT) iter.next();
@@ -231,10 +235,10 @@ public class TINWithFixedLines {
 		}
 		//vymazani bodu A a B
 		iter = points.iterator();
-		PointDT P;
+		Coordinate P;
 		while (iter.hasNext()){	//vymazani yacatku a konce linie ze seznamu bodu
-			P = (PointDT)iter.next();
-			if (P.compare(A)||P.compare(B))
+			P = (Coordinate)iter.next();
+			if (P.equals2D(A)||P.equals2D(B))
 					iter.remove();
 		}
 		return points;
@@ -254,7 +258,7 @@ public class TINWithFixedLines {
 	private boolean testIsInside(TriangleDT T, LinkedList trians){
 		Iterator iter = trians.iterator();
 		while (iter.hasNext()){			//testovani zda teziste noveho trojuhelnika je uvnitr zrusenych trojuhelniku
-			if (((TriangleDT)iter.next()).contains(new PointDT(T.key[0],T.key[1],0))){
+			if (((TriangleDT)iter.next()).contains(T.getCentroid())){
 				return true;
 			}
 		}
@@ -298,7 +302,7 @@ public class TINWithFixedLines {
 		LinkedList points; 				// body kterych se budou nove triangulovat
 		Triangle[] leftTIN;				// TIN nad primkou 
 		Triangle[] rightTIN;			// TIN pod primkou
-		PointDT P;						// pomocny bod
+		Coordinate P;						// pomocny bod
 		double alfa;					// uhel, ktery svira pevna hrana s osou x
 		double yTrans,xTrans;			// transfomovane souradnice (shodnostni transformace
 										// uhel pooteceni alfa, posunuti 0 v x-ove i v y-ove ose
@@ -310,6 +314,8 @@ public class TINWithFixedLines {
 			leftPoints = new ArrayList();
 			rightPoints = new ArrayList();
 			line = (LineDT) iter.next();
+			System.out.println("LINEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+			System.out.println(line.toString());
 			trianglesToChange = getTrianglesIntersectLine();	// getting triangles which intersect fixed line
 			
 			
@@ -326,7 +332,7 @@ public class TINWithFixedLines {
 				Iterator it = points.iterator();
 				
 				while (it.hasNext()){			
-					P = (PointDT)it.next();
+					P = (Coordinate)it.next();
 					yTrans = Math.cos(alfa)*P.y + Math.sin(alfa)*P.x;		// identity transformation
 					//xTrans = Math.cos(alfa)*P.x - Math.sin(alfa)*P.y;
 					if (yTrans>=yTransNullPoints-0.0000001){
@@ -339,7 +345,7 @@ public class TINWithFixedLines {
 				
 				int i = triangles.size();
 				if (!leftPoints.isEmpty()){
-					
+					//System.out.println("Line isn't empty");
 					leftPoints.add(new Coordinate(line.A.x, line.A.y, line.A.z));
 					leftPoints.add(new Coordinate(line.B.x, line.B.y, line.B.z));
 					Coordinate[] coordsLeft = new Coordinate[leftPoints.size()];
@@ -360,10 +366,8 @@ public class TINWithFixedLines {
 						//System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						if (T!=null && T.isTriangle()){
 						//	T.toStringa();
-							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
-							//	System.out.println("je to breakline PRVNIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
-								setTypeOfBreakLine(T, line);
-							}	
+							
+								
 						if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
@@ -376,6 +380,8 @@ public class TINWithFixedLines {
 								catch(Exception e){
 									e.printStackTrace();
 								}
+								setTypeOfBreakLine(T);
+								T.toStringa();
 								triangles.add(i, T);				//vlozeni do celkove triangulace
 								i++;
 							}
@@ -383,7 +389,7 @@ public class TINWithFixedLines {
 					}
 				}	
 				if (!rightPoints.isEmpty()){
-
+					//System.out.println("Line isn't empty");
 					rightPoints.add(new Coordinate(line.A.x, line.A.y, line.A.z));
 					rightPoints.add(new Coordinate(line.B.x, line.B.y, line.B.z));
 					Coordinate[] coordsRight = new Coordinate[rightPoints.size()];
@@ -407,10 +413,7 @@ public class TINWithFixedLines {
 						//	T.toStringa();
 						//	System.out.println("VYPISUJU ===================================");
 						//	System.out.println(line.toString());
-							if (line.isHardBreakLine&&T.containsPointAsVertex(line.A)&&T.containsPointAsVertex(line.B)){
-							//	System.out.println("je to breaklineDRUHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-								setTypeOfBreakLine(T, line);
-							}	
+							
 							if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
@@ -423,6 +426,8 @@ public class TINWithFixedLines {
 								catch(Exception e){
 									e.printStackTrace();
 								}
+								setTypeOfBreakLine(T);
+								T.toStringa();
 								triangles.add(i, T);				//vlozeni do celkove triangulace
 								i++;
 							}
@@ -441,66 +446,96 @@ public class TINWithFixedLines {
 		return triangles;
 	}
 	
-	protected void setTypeOfBreakLine (TriangleDT T, LineDT line){
-		if ((T.A.compare(line.A)&&T.B.compare(line.B))||(T.A.compare(line.B)&&T.B.compare(line.A))){
-			if (!T.haveBreakLine){
-				T.typeBreakLine = 0;
-			}
-			else{
-				if (T.typeBreakLine == 1){
-					T.typeBreakLine = 4;
-				}
-				else{
-					if (T.typeBreakLine == 2){
-						T.typeBreakLine = 3;	
-					}
-					else{
-						if (T.typeBreakLine == 5){
-							T.typeBreakLine = 6;
-						}
-					}
-				}
-			}
+	protected void setTypeOfBreakLine (TriangleDT T){
+		//System.out.println("nastavuju hodnotu HB");
+		System.out.println("SETTYPEOF BREAL LINE");
+		T.normalizePolygon();
+		Iterator iterFixedLines = fixedLines.iterator();
+		while (iterFixedLines.hasNext()){
+			
+			
+		if ((T.A.x == -768509)||(T.A.x == -768509)||(T.A.x == -768509)){
+			System.out.println("POOOOOOOOOOOOOOOOOOOOOOOOOOOOOZPPP");
+			T.toStringa();
 		}
-		else
-			if ((T.B.compare(line.A)&&T.C.compare(line.B))||(T.C.compare(line.B)&&T.B.compare(line.A))){
+			
+			LineDT line = (LineDT) iterFixedLines.next();
+			//System.out.println(line.toString());
+			//System.out.println(" ------------------------------");
+			if ((T.A.equals2D(line.A)&&T.B.equals2D(line.B))||(T.A.equals2D(line.B)&&T.B.equals2D(line.A))){
+				System.out.println("prvni");
 				if (!T.haveBreakLine){
-					T.typeBreakLine = 1;
+					T.typeBreakLine = 0;
+					T.haveBreakLine = true;
 				}
 				else{
-					if (T.typeBreakLine == 0){
+					if (T.typeBreakLine == 1){
 						T.typeBreakLine = 4;
 					}
 					else{
 						if (T.typeBreakLine == 2){
-							T.typeBreakLine = 5;	
+							T.typeBreakLine = 3;	
 						}
 						else{
-							if (T.typeBreakLine == 3)
+							if (T.typeBreakLine == 5){
 								T.typeBreakLine = 6;
+							}
 						}
-					}	
+					}
 				}
 			}
-			else{
-				if (!T.haveBreakLine){
-					T.typeBreakLine = 2;
-				}
-				else{
-					if (T.typeBreakLine == 0){
-						T.typeBreakLine = 4;
+			else
+				if ((T.B.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.B.equals2D(line.B))){
+					System.out.println("druhy");
+					if (!T.haveBreakLine){
+						T.typeBreakLine = 1;
+						T.haveBreakLine = true;
 					}
 					else{
-						if (T.typeBreakLine == 2){
-							T.typeBreakLine = 5;	
+						if (T.typeBreakLine == 0){
+							T.typeBreakLine = 4;
 						}
 						else{
-							if (T.typeBreakLine == 4)
-								T.typeBreakLine = 6;
-						}
+							if (T.typeBreakLine == 2){
+								T.typeBreakLine = 5;	
+							}
+							else{
+								if (T.typeBreakLine == 3)
+									T.typeBreakLine = 6;
+							}
+						}	
 					}
 				}
+				else{
+					if ((T.A.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.A.equals2D(line.B))){
+						System.out.println("treti");
+						if (!T.haveBreakLine){
+							T.typeBreakLine = 2;
+							T.haveBreakLine = true;
+						}
+						else{
+							if (T.typeBreakLine == 0){
+								T.typeBreakLine = 3;
+							}
+							else{
+								if (T.typeBreakLine == 1){
+									T.typeBreakLine = 5;	
+								}
+								else{
+									if (T.typeBreakLine == 4)
+										T.typeBreakLine = 6;
+								}
+							}
+						}
+					}
+				}	
+			}	
+
+		if ((T.A.x == -768509)||(T.A.x == -768509)||(T.A.x == -768509)){
+			System.out.println("POOOOOOOOOOOOOOOOOOOOOOOOOOOOOZPPP");
+			
 		}
-		T.haveBreakLine = true;
+		T.toStringa();
+		
 	}
 }

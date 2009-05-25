@@ -28,7 +28,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
-import es.unex.sextante.vectorTools.tinWithFixedLines.PointDT;
 import es.unex.sextante.vectorTools.tinWithFixedLines.TriangleDT;
 
 class Bezier3 {

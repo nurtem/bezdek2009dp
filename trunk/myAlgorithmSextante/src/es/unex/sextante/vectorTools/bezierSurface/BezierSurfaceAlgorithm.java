@@ -1,9 +1,11 @@
 package es.unex.sextante.vectorTools.bezierSurface;
 
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.geotools.index.Data;
 import org.geotools.index.DataDefinition;
@@ -47,6 +49,12 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 			coord[2] = C;
 			this.typeOfBreakLine = typeOfBreakLine;
 		}
+		void toStringa(){
+			System.out.println(coord[0]);
+			System.out.println(coord[1]);
+			System.out.println(coord[2]);  
+			System.out.println(typeOfBreakLine);
+		}
 	}
 	
 	public static final String TIN = "TIN";
@@ -62,7 +70,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	
 	private RTree trianglesIndex;
 	Coordinate [][] triangles;
-	List breakLines = new LinkedList();
+	TreeMap breakLines = new TreeMap();
 	Bezier miniBezierTriangles[];
 	
 	public void defineCharacteristics() {
@@ -127,22 +135,31 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
 				IRecord record = feature.getRecord();
 				//System.out.println(record.getValue(2).toString());
-				if (((String)record.getValue(1)) == "breakLine")
-					breakLines.add(i, (Integer)record.getValue(2));
+				if (((String)record.getValue(1)) == "Y")
+					breakLines.put(i, (Integer)record.getValue(2));
 				
 				triangles [i] = trianglePolygon.getCoordinates();
-				//System.out.println(triangles[i]);
+				/////////////
+				
+					System.out.println(triangles[i][0]);
+					System.out.println(triangles[i][1]);
+					System.out.println(triangles[i][2]);
+				
+				System.out.println((Integer)breakLines.get(i));
+		//////////////////		
 				data = new Data(dd);
 				data.addValue(i);
 				trianglesIndex.insert(trianglePolygon.getEnvelopeInternal(), data);
 	
-				double diffZ = triangles[i][0].z - triangles[i][1].z;
-				double diffXY = Math.sqrt(Math.pow((triangles[i][0].x-triangles[i][1].x),2)+
-								Math.pow((triangles[i][0].y-triangles[i][1].y),2));
+				for (int k=0; k<2; k++){
+					double diffZ = triangles[i][k].z - triangles[i][k+1].z;
+					double diffXY = Math.sqrt(Math.pow((triangles[i][k].x-triangles[i][k+1].x),2)+
+								Math.pow((triangles[i][k].y-triangles[i][k+1].y),2));
 				
-				if (scaleZ < Math.abs(diffZ/diffXY))
-					scaleZ = Math.abs(diffZ/diffXY);
-				System.out.println(scaleZ);
+					if (scaleZ < Math.abs(diffZ/diffXY))
+						scaleZ = Math.abs(diffZ/diffXY)*10;
+					System.out.println(scaleZ);
+				}	
 				i++;
 			}
 			iter.close();
@@ -150,7 +167,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		catch (Exception e){
 			e.printStackTrace(); 
 		}	
-		
+		//scaleZ = 4.2;
 		//
 		
 		for (i = 0; i<triangles.length; i++)
@@ -161,12 +178,15 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		
 		int indexOfInterpolatedTriangles = 0;
 		for (int j = 0; j < triangles.length; j++) {
+			System.out.println("Zaciname"+j);
 			Bezier2 newBezierTriangles = new Bezier2(triangles[j]);
 			newBezierTriangles.setNormalVector(searchVectors(newBezierTriangles,newBezierTriangles.b300, j),
 											   searchVectors(newBezierTriangles,newBezierTriangles.b030, j),
 											   searchVectors(newBezierTriangles,newBezierTriangles.b003, j)); 
-			newBezierTriangles.setControlPoints();
-
+			if (breakLines.containsKey(j))
+					newBezierTriangles.setControlPoints((Integer)breakLines.get(j));
+			else
+					newBezierTriangles.setControlPoints(-1);
 			for (int k = 0; k<3; k++){
 				//newBezierTriangles.getBezierPatch(k).toStringa();
 				Coordinate newTin[][] = getInterpolatedTriangles(newBezierTriangles.getBezierPatch(k));
@@ -320,7 +340,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 					//		System.out.println(v2);
 							double scalar = Bezier2.countScalarProduct(v1,v2);
 							double alfa = Math.acos(scalar/(Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2)));
-				//			//sumAlfa += alfa;
+				//			//sumA += alfa;
 					//		System.out.println("Jsem v AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+alfa);
 							Coordinate normal = Bezier2.setNormalVector(v1,v2);
 							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
@@ -329,7 +349,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 				if (haveBreakLine){
 					testingBreakLine = false;
 					haveBreakLine = false;
-					vectors = null;
+					vectors = new LinkedList();
 					iterTrianglesIndex = setCorectTrianglesIndex(listOfTrianglesIndex, bezierT,  P, indexOfBezierT).iterator();
 					
 				}	
@@ -341,8 +361,9 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	
 	
 	protected LinkedList setCorectTrianglesIndex(List listOfTrianglesIndex, Bezier2 bezierT, Coordinate P, int indexOfBezierT){
-		LinkedList allTriangles = new LinkedList();
-		LinkedList newTriangles = new LinkedList();
+		System.out.println("jsem v Ceorect+" +indexOfBezierT);
+		TreeMap allTriangles = new TreeMap();
+		TreeMap newTriangles = new TreeMap();
 		Iterator iterOfTrianglesIndex = listOfTrianglesIndex.iterator();
 		int typeOfBreakLine;
 		while (iterOfTrianglesIndex.hasNext()){
@@ -357,83 +378,112 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 			
 			switch (compareReturnIndex(TT, P)){
 				case 'A':{
-					newTriangles.add(index, new Triangle(index,TT, typeOfBreakLine));
+					System.out.println("A");
+					allTriangles.put(index, new Triangle(index,TT, typeOfBreakLine));
+					((Triangle)(allTriangles.get(index))).toStringa();
 					break;
 				}	
 				case 'B':{
-					if ((typeOfBreakLine < 3)&&(typeOfBreakLine != -1))
-						typeOfBreakLine = (typeOfBreakLine+2)%3;
-					else
-						if (typeOfBreakLine != 6){
-							typeOfBreakLine = (typeOfBreakLine+2)%3 + 3;
-						}
-					newTriangles.add(index, new Triangle(index, TT[1], TT[2], TT[0], typeOfBreakLine));
+					System.out.println("B");
+					if (typeOfBreakLine != -1){
+						if ((typeOfBreakLine < 3))
+							typeOfBreakLine = (typeOfBreakLine+2)%3;
+						else
+							if (typeOfBreakLine != 6){
+								typeOfBreakLine = (typeOfBreakLine+2)%3 + 3;
+							}
+					}
+					allTriangles.put(index, new Triangle(index, TT[1], TT[2], TT[0], typeOfBreakLine));
+					((Triangle)(allTriangles.get(index))).toStringa();
 					break;
 				}
 				case 'C':{
-					if ((typeOfBreakLine < 3)&&(typeOfBreakLine != -1))
-						typeOfBreakLine = (typeOfBreakLine+1)%3;
-					else
-						if (typeOfBreakLine != 6){
-							typeOfBreakLine = (typeOfBreakLine+1)%3 + 3;
-						}
-					newTriangles.add(index, new Triangle(index,TT,2));
+					System.out.println("C");
+					if (typeOfBreakLine != -1){
+						if (typeOfBreakLine < 3)
+							typeOfBreakLine = (typeOfBreakLine+1)%3;
+						else
+							if (typeOfBreakLine != 6){
+								typeOfBreakLine = (typeOfBreakLine+1)%3 + 3;
+							}
+					}
+					allTriangles.put(index, new Triangle(index,TT[2], TT[0], TT[1], typeOfBreakLine));
+					((Triangle)(allTriangles.get(index))).toStringa();
 					break;
 				}
 			}
 		}
 		Triangle T = (Triangle)allTriangles.get(indexOfBezierT);
-		newTriangles.add(indexOfBezierT, T);
+		System.out.println("ZaCINAME ---------------");
+		T.toStringa();
+		
+		newTriangles.put(indexOfBezierT, T);
 		allTriangles.remove(indexOfBezierT);
 		
 		//TEST OF TRIANGLES ON THE RIGHT SIDE
 		Triangle rightT = T;
-		while ((rightT.typeOfBreakLine != 6)||(rightT.typeOfBreakLine != 3)||(rightT.typeOfBreakLine != 2)||(rightT.typeOfBreakLine != 5)){
-			Iterator iterAllTriangles = allTriangles.iterator();
+		boolean change = true;
+		while ((rightT.typeOfBreakLine != 6)&&(rightT.typeOfBreakLine != 3)&&(rightT.typeOfBreakLine != 2)&&(rightT.typeOfBreakLine != 5)&&!allTriangles.isEmpty()&&change){
+			System.out.println("RIGHT");
+			rightT.toStringa();
+			change = false;
+			Iterator iterAllTriangles = allTriangles.values().iterator();
 			while (iterAllTriangles.hasNext()){
 				T = (Triangle)iterAllTriangles.next();
+				T.toStringa();
 				if (rightT.coord[2].equals2D(T.coord[1])){
-					newTriangles.add(T.index, T);
+					change = true;
+					newTriangles.put(T.index, T);
 					allTriangles.remove(T.index);
 					rightT = T;
+					System.out.println("MAMHO");
+					break;
 				}
 			}
 		}
 		//TEST OF TRIANGLES ON THE LEFT SIDE
 		Triangle leftT = (Triangle)newTriangles.get(indexOfBezierT);
-		while ((leftT.typeOfBreakLine != 6)||(leftT.typeOfBreakLine != 3)||(leftT.typeOfBreakLine != 0)||(leftT.typeOfBreakLine != 4)){
-			Iterator iterAllTriangles = allTriangles.iterator();
+		change = true;
+		while ((leftT.typeOfBreakLine != 6)&&(leftT.typeOfBreakLine != 3)&&(leftT.typeOfBreakLine != 0)&&(leftT.typeOfBreakLine != 4)&&!allTriangles.isEmpty()&&change){
+			System.out.println("LEFT");
+			leftT.toStringa();
+			change = false;
+			Iterator iterAllTriangles = allTriangles.values().iterator();
 			while (iterAllTriangles.hasNext()){
 				T = (Triangle)iterAllTriangles.next();
+				T.toStringa();
 				if (leftT.coord[1].equals2D(T.coord[2])){
-					newTriangles.add(T.index, T);
+					change = true;
+					newTriangles.put(T.index, T);
 					allTriangles.remove(T.index);
 					leftT = T;
+					System.out.println("MAMHO");
+					break;
 				}
 			}
 		}
 		
 		//Creating of list of indexes for computing normals
-		allTriangles = new LinkedList();
+		LinkedList finalTriangles = new LinkedList();
 		try{
-			Iterator iterOfNewTriangles = newTriangles.iterator();
+			Iterator iterOfNewTriangles = newTriangles.values().iterator();
 			while (iterOfNewTriangles.hasNext()){
 				data = new Data(dd);
 				data.addValue(((Triangle)iterOfNewTriangles.next()).index);
-				allTriangles.add(data);
+				finalTriangles.add(data);
 			}
 		}
 		catch(Exception e){
 			e.printStackTrace(); 
 		}
 		
-		return allTriangles;
+		return finalTriangles;
 		
 	}
 	
 	protected boolean testOfBreakLine(char vertex, int indexTT){
-		if (breakLines.size() > 0){
-			Iterator iterBreakLines = breakLines.iterator();
+		if (breakLines.containsKey(indexTT)){
+			//Iterator iterBreakLines = breakLines.iterator();
 			int typeOfBreakLine;
 			Object typeOfBreakL = breakLines.get(indexTT);
 			if (typeOfBreakL!=null)

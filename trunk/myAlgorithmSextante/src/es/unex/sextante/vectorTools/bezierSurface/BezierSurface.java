@@ -261,7 +261,7 @@ public class BezierSurface {
 			bezierTriangles[trianglesIndex].setNormalVector(searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b300),
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b030),
 					searchVectors(bezierTriangles[trianglesIndex],bezierTriangles[trianglesIndex].b003)); 
-			bezierTriangles[trianglesIndex].setControlPoints();
+			bezierTriangles[trianglesIndex].setControlPoints(-1);
 			bezierTriangles[trianglesIndex].toStringa();
 			for (int i = 0; i<3; i++){
 				bezierTriangles2[numberOfBezier2++] = bezierTriangles[trianglesIndex].getBezierPatch(i);

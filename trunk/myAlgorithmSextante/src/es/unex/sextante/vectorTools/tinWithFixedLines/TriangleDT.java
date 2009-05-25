@@ -22,20 +22,21 @@ package es.unex.sextante.vectorTools.tinWithFixedLines;
 
 import java.awt.geom.GeneralPath;
 import java.io.Serializable;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import org.geotools.index.Data;
 
 public class TriangleDT implements Serializable {
-	public PointDT A;
-	public PointDT B;
-	public PointDT C;
-	public double[] key;
-	public double[][] neighbour_idx = new double [3][2];
+	public Coordinate A;
+	public Coordinate B;
+	public Coordinate C;
+//	public double[] key;
+//	public double[][] neighbour_idx = new double [3][2];
 	public boolean haveBreakLine = false;
 	public int typeBreakLine = -1;
 	/***************************************************************************
@@ -49,31 +50,8 @@ public class TriangleDT implements Serializable {
 		A = T.A;
 		B = T.B;
 		C = T.C;
-		setKey();
-		for (int i = 0; i<3; i++)
-			for (int j = 0; j<2; j++)
-				neighbour_idx[i][j] = T.neighbour_idx[i][j];
 	}
 	
-	/**************************************************************************
-	 * Constructor
-	 * @param data - basic seriaziable type
-	 */
-	protected TriangleDT(double[] data){
-		A = new PointDT(data[0],data[1],data[2]);
-		B = new PointDT(data[3],data[4],data[5]);
-		C = new PointDT(data[6],data[7],data[8]);
-		key = new double[2];
-		key[0] = data[9];
-		key[1] = data[10];
-		neighbour_idx = new double[3][2];
-		neighbour_idx[0][0] = data[11];
-		neighbour_idx[0][1] = data[12];
-		neighbour_idx[1][0] = data[13];
-		neighbour_idx[1][1] = data[14];
-		neighbour_idx[2][0] = data[15]; 
-		neighbour_idx[2][1] = data[16];
-	}
 
 	/***************************************************************************
 	 * Constructor
@@ -84,34 +62,20 @@ public class TriangleDT implements Serializable {
 	 * 
 	 */
 
-	public TriangleDT(PointDT A, PointDT B, PointDT C) {
+
+
+	public TriangleDT(Coordinate A, Coordinate B, Coordinate C) {
 		this.A = A;
 		this.B = B;
 		this.C = C;
-		setKey();
-	}
-
-	/***************************************************************************
-	 * Constructor
-	 * 
-	 * @param  A - first vertex
-	 * @param  B - second vertex
-	 * @param  C - third vertex
-	 * 
-	 */
-
-	public TriangleDT(Coordinate A, Coordinate B, Coordinate C) {
-		this.A = new PointDT(A.x, A.y, A.z);
-		this.B = new PointDT(B.x, B.y, B.z);
-		this.C = new PointDT(C.x, C.y, C.z);
-		setKey();
+	//	setKey();
 	}
 
 	public TriangleDT(Coordinate[] coords) {
-		this.A = new PointDT(coords[0].x, coords[0].y, coords[0].z);
-		this.B = new PointDT(coords[1].x, coords[1].y, coords[1].z);
-		this.C = new PointDT(coords[2].x, coords[2].y, coords[2].z);
-		setKey();
+		this.A = new Coordinate(coords[0].x, coords[0].y, coords[0].z);
+		this.B = new Coordinate(coords[1].x, coords[1].y, coords[1].z);
+		this.C = new Coordinate(coords[2].x, coords[2].y, coords[2].z);
+	//	setKey();
 	}
 
 
@@ -122,16 +86,6 @@ public class TriangleDT implements Serializable {
 	public TriangleDT() {
 	}
 
-	/***************************************************************************
-	 * The method for setting key of triangle
-	 * 
-	 */
-
-	private void setKey() {
-		key = new double[2];
-		key[0] = (A.x + B.x + C.x) / 3;
-		key[1] = (A.y + B.y + C.y) / 3;
-	}
 
 	/***************************************************************************
 	 * The method which testing, if the line intersect the triangle
@@ -152,6 +106,11 @@ public class TriangleDT implements Serializable {
 
 		return newL.crosses(trianglesPoints.convexHull());
 	}
+	
+	protected Coordinate getCentroid() {
+		return new Coordinate((A.x + B.x + C.x) / 3, (A.y + B.y + C.y) / 3);
+	}
+
 
 	/***************************************************************************
 	 * The method which testing, if the triangle contains the point
@@ -163,7 +122,7 @@ public class TriangleDT implements Serializable {
 	 * 
 	 */
 
-	public boolean contains(PointDT P) {
+	public boolean contains(Coordinate P) {
 		GeneralPath triangle = new GeneralPath();
 		
 		triangle.moveTo((float) A.x, (float) A.y);
@@ -185,8 +144,8 @@ public class TriangleDT implements Serializable {
 	 * 
 	 */
 
-	public boolean containsPointAsVertex(PointDT P) {
-		if (A.compare(P) || B.compare(P) || C.compare(P))
+	public boolean containsPointAsVertex(Coordinate P) {
+		if (A.equals2D(P) || B.equals2D(P) || C.equals2D(P))
 			return true;
 		else
 			return false;
@@ -205,11 +164,11 @@ public class TriangleDT implements Serializable {
 	 */
 
 	protected boolean containsOneSamePointWith(TriangleDT T) {
-		if (T.A.compare(A) || T.A.compare(B) || T.A.compare(C))
+		if (T.A.equals2D(A) || T.A.equals2D(B) || T.A.equals2D(C))
 			return true;
-		if (T.B.compare(A) || T.B.compare(B) || T.B.compare(C))
+		if (T.B.equals2D(A) || T.B.equals2D(B) || T.B.equals2D(C))
 			return true;
-		if (T.C.compare(A) || T.C.compare(B) || T.C.compare(C))
+		if (T.C.equals2D(A) || T.C.equals2D(B) || T.C.equals2D(C))
 			return true;
 		else
 			return false;
@@ -227,9 +186,9 @@ public class TriangleDT implements Serializable {
 	 * 
 	 */
 
-	public boolean containsTwoPoints(PointDT P1, PointDT P2) {
-		if ((A.compare(P1) || B.compare(P1) || C.compare(P1))
-				&& (A.compare(P2) || B.compare(P2) || C.compare(P2)))
+	public boolean containsTwoPoints(Coordinate P1, Coordinate P2) {
+		if ((A.equals2D(P1) || B.equals2D(P1) || C.equals2D(P1))
+				&& (A.equals2D(P2) || B.equals2D(P2) || C.equals2D(P2)))
 			return true;
 		return false;
 	}
@@ -244,12 +203,7 @@ public class TriangleDT implements Serializable {
 		//return ("TriangleDT: " + A.toString() + B.toString() + C.toString()+" KEY "+key[0]+" "+key[1]+"  neighbour>"+neighbour_idx[0][0]+ " ");
 		System.out.println("--------------------------------------------------------------------");
 		  System.out.println("TDT: " + A.toString() + B.toString() + C.toString());
-		  System.out.println(" k:"+key[0]+" "+key[1]);
-		 System.out.println(); 
-		 System.out.println(" Soused0 "+neighbour_idx[0][0]+"  "+neighbour_idx[0][1]);
-		 System.out.println(" Soused0 "+neighbour_idx[1][0]+"  "+neighbour_idx[1][1]);
-		 System.out.println(" Soused0 "+neighbour_idx[2][0]+"  "+neighbour_idx[2][1]);
-		 System.out.println();
+		  System.out.println(" k:"+typeBreakLine);
 		System.out.println("--------------------------------------------------------------------"); 
 	}	 
 	/***************************************************************************
@@ -290,9 +244,9 @@ public class TriangleDT implements Serializable {
 	 */
 
 	public boolean compare(TriangleDT T) {
-		if ((T.A.compare(A) || T.A.compare(B) || T.A.compare(C))
-				&& (T.B.compare(A) || T.B.compare(B) || T.B.compare(C))
-				&& (T.C.compare(A) || T.C.compare(B) || T.C.compare(C))) {
+		if ((T.A.equals2D(A) || T.A.equals2D(B) || T.A.equals2D(C))
+				&& (T.B.equals2D(A) || T.B.equals2D(B) || T.B.equals2D(C))
+				&& (T.C.equals2D(A) || T.C.equals2D(B) || T.C.equals2D(C))) {
 
 			return true;
 		}
@@ -305,43 +259,18 @@ public class TriangleDT implements Serializable {
 	 * @param P - points for comparing
 	 * @return index A,B,C which point is same or N if point P not exist in triangle
 	 */
-	public char compareReturnIndex(PointDT P){
-		if (P.compare(A))
+	public char compareReturnIndex(Coordinate P){
+		if (P.equals2D(A))
 			return 'A';
-		if (P.compare(B))
+		if (P.equals2D(B))
 			return 'B';
-		if (P.compare(C))
+		if (P.equals2D(C))
 			return 'C';
 		return 'N';
 		
 	}
 	
-	/***********************************************************************
-	 * Protected method for converting object triangle to basic data type
-	 * @return - array of double
-	 */
-	protected double[] triangleToBasicType(){
-		double []src = new double[17];
-		src[0] = A.x;
-		src[1] = A.y;
-		src[2] = A.z;
-		src[3] = B.x;
-		src[4] = B.y;
-		src[5] = B.z;
-		src[6] = C.x;
-		src[7] = C.y;
-		src[8] = C.z;
-		src[9] = key[0];
-		src[10] = key[1];
-		src[11] = neighbour_idx[0][0];
-		src[12] = neighbour_idx[0][1];
-		src[13] = neighbour_idx[1][0];
-		src[14] = neighbour_idx[1][1];
-		src[15] = neighbour_idx[2][0];
-		src[16] = neighbour_idx[2][1];
-		return src;
-	}
-	
+
 	/************************************************************************
 	 * Protected method for getting envelope of triangle
 	 * @return envelope of triangle
@@ -359,6 +288,22 @@ public class TriangleDT implements Serializable {
 				new GeometryFactory());
 
 		return trianglesPoints.getEnvelopeInternal();
+	}
+	
+	public void normalizePolygon(){
+		Coordinate[] coords = new Coordinate[4];
+		GeometryFactory gf = new GeometryFactory();
+		coords[0] = A;
+		coords[1] = B;
+		coords[2] = C;
+		coords[3] = A;
+		LinearRing ring = gf.createLinearRing(coords);
+		Polygon poly = gf.createPolygon(ring, null);
+		poly.normalize();
+		coords = poly.getCoordinates();
+		A = coords[0];
+		B = coords[1];
+		C = coords[2];
 	}
 
 }

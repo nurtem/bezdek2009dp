@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 import es.unex.sextante.additionalInfo.AdditionalInfoVectorLayer;
 import es.unex.sextante.core.GeoAlgorithm;
@@ -49,7 +50,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 	public void defineCharacteristics() {
 
 		setName(Sextante.getText( "TIN - modified by fixed lines"));
-		setGroup(Sextante.getText("Herramientas_capas_puntos"));
+		setGroup(Sextante.getText("Herramientas_capas_puntos")); 
 		setGeneratesUserDefinedRasterOutput(false);
 
 		try {
@@ -100,7 +101,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 		
 		
 		Class types[] = {Integer.class, String.class, Integer.class};
-		String sNames[] = {"ID", "HardLines", "type"};
+		String sNames[] = {"ID", "hardBreak", "typeOfBreak"};
 		m_TrianglesOut = getNewVectorLayer(TRIANGLES,
 										m_Triangles.getName()+"_modified",
 										IVectorLayer.SHAPE_TYPE_POLYGON,
@@ -124,9 +125,7 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				IFeature feature = iter.next();
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
 				Coordinate[] coords = trianglePolygon.getCoordinates();
-				TriangleDT triangle = new TriangleDT(new PointDT(coords[0].x,coords[0].y,coords[0].z),
-						new PointDT(coords[1].x,coords[1].y,coords[1].z),
-						new PointDT(coords[2].x,coords[2].y,coords[2].z));
+				TriangleDT triangle = new TriangleDT(coords);
 			//	System.out.println(i);
 			//	triangle.toStringa();
 				triangles.add(i, triangle);
@@ -155,8 +154,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				Coordinate[] coords = lineString.getCoordinates();
 				LineDT softLine = null;
 				for (int j=1; j< coords.length; j++){
-					softLine = new LineDT(new PointDT(coords[j-1].x,coords[j-1].y,0),
-							new PointDT(coords[j].x,coords[j].y,0), false);
+					softLine = new LineDT(new Coordinate(coords[j-1].x,coords[j-1].y,0),
+							new Coordinate(coords[j].x,coords[j].y,0), false);
 					breakLines.add(softLine);
 				}
 				i++;
@@ -177,8 +176,8 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				Coordinate[] coords = lineString.getCoordinates();
 				LineDT hardLine = null;
 				for (int j=1; j< coords.length; j++){
-					hardLine = new LineDT(new PointDT(coords[j-1].x,coords[j-1].y,0),
-							new PointDT(coords[j].x,coords[j].y,0), true);
+					hardLine = new LineDT(new Coordinate(coords[j-1].x,coords[j-1].y,0),
+							new Coordinate(coords[j].x,coords[j].y,0), true);
 					breakLines.add(hardLine);
 				}
 				i++;
@@ -199,15 +198,14 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 					Object[] record = {new Integer(j),"", trian.typeBreakLine};
 					if (trian.haveBreakLine){
 						record[0] = new Integer(j);
-						record[1] = "breakLine";
+						record[1] = "Y";
 						record[2] = trian.typeBreakLine;
 					}
 					//	triangles.getTriangle(j).toStringa();
 				
 				
 					Geometry triangle = getPolygon(trian);
-					//System.out.println(triangle.toString());
-						m_TrianglesOut.addFeature(triangle, record);
+					m_TrianglesOut.addFeature(triangle, record);
 					j++;
 				}
 			}
