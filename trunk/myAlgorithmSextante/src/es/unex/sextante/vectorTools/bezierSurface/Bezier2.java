@@ -58,6 +58,8 @@ class Bezier2 {
 	Coordinate n110 = null;
 	Coordinate n011 = null;
 	Coordinate n101 = null;
+	
+	
 	/****************************************************************
 	 * Constructor
 	 * @param T Trinagle fom original TIN
@@ -74,6 +76,7 @@ class Bezier2 {
 		//System.out.println(normalN2.toString());
 		//System.out.println(normalN3.toString());
 		setControlPoints(typeOfBreakLine);
+		
 	}
 	
 	Bezier2(Coordinate[] coords){
@@ -98,8 +101,12 @@ class Bezier2 {
 	 */
 	protected void setNormalVector(LinkedList listA, LinkedList listB, LinkedList listC){
 		normalN1 = countVector(listA, b300);
+	//	System.out.println("==================");
+	//	System.out.println(normalN1.toString());
 		normalN2 = countVector(listB, b030);
 		normalN3 = countVector(listC, b003);
+	//	System.out.println(normalN2.toString());
+	//	System.out.println(normalN3.toString());
 	}
 	
 	/*********************************************************************
@@ -189,6 +196,9 @@ class Bezier2 {
 	protected static Coordinate countDifferenceProduct (Coordinate v1, Coordinate v2){
 		return new Coordinate(v1.x-v2.x,v1.y-v2.y,v1.z-v2.z);
 	}
+	
+	
+
 	
 	protected static Coordinate countSumProduct (Coordinate v1, Coordinate v2){
 		return new Coordinate(v1.x+v2.x,v1.y+v2.y,v1.z+v2.z);
@@ -488,12 +498,14 @@ class Bezier2 {
 		G = new Coordinate(	(b300.x+b030.x+b003.x)/3,
 							(b300.y+b030.y+b003.y)/3,
 							(b300.z+b030.z+b003.z)/3);
-		Coordinate normalOfT = (setNormalVector(countDifferenceProduct(b300,b030),countDifferenceProduct(b300,b003)));
+		Coordinate normalOfT = new Coordinate(0,0,1);//(setNormalVector(setVector(b300,b030),setVector(b300,b003)));
+		//Coordinate normalOfTWithoutScaling = (setNormalVector(setVector(b300,b030),setVector(b300,b003)));
 		
  		A111 = new Coordinate(	(b300.x+b030.x+G.x)/3,
 								(b300.y+b030.y+G.y)/3,
 								(b300.z+b030.z+G.z)/3);
-//		System.out.println("pulka");
+ 		
+ 		//		System.out.println("pulka");
 		Coordinate e1 = normalizeVect(getNormal(1D/2D, 0D)); 
 		Coordinate e2 = normalizeVect(countDifferenceProduct(b120, b210));
 		Coordinate normalOfPlane = setNormalVector(countCrossProduct(e1,e2),e2);
@@ -507,6 +519,7 @@ class Bezier2 {
 		B111 = new Coordinate(	(b003.x+b030.x+G.x)/3,
 				(b003.y+b030.y+G.y)/3,
 				(b003.z+b030.z+G.z)/3);
+		
 		//System.out.println("pulka");
 		e1 = normalizeVect(getNormal(1D/2D, 1D/2D)); 
 		e2 = normalizeVect(countDifferenceProduct(b012, b021));
@@ -522,6 +535,7 @@ class Bezier2 {
 		C111 = new Coordinate(	(b003.x+b300.x+G.x)/3,
 				(b003.y+b300.y+G.y)/3,
 				(b003.z+b300.z+G.z)/3);
+		
 		//System.out.println("pulka");
 		e1 = normalizeVect(getNormal(0, 1/2D)); 
 		e2 = normalizeVect(countDifferenceProduct(b201, b102));

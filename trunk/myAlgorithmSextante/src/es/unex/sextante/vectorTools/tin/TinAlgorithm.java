@@ -134,7 +134,7 @@ public class TinAlgorithm extends GeoAlgorithm {
 		Triangulation triangulation = new Triangulation(m_Coords, new int[0][0]);
 		triangulation.triangulate();
 		Triangle[] triangles = triangulation.getTriangles();
-
+		
 		for (int j = 0; j < triangles.length; j++) {
 			Object[] record = {new Integer(j),"",-1};
 			Geometry triangle = getPolygon(triangles[j]);
