@@ -1,3 +1,28 @@
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
+ *    
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
+ */
+
+
 package es.unex.sextante.vectorTools.tinWithFixedLines;
 
 import java.util.ArrayList;
@@ -59,7 +84,6 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 											AdditionalInfoVectorLayer.SHAPE_TYPE_POLYGON,
 											true);
 
-			//m_Parameters.
 			
 			m_Parameters.addInputVectorLayer(HARDLINES,
 					Sextante.getText( "Hard break lines:"),
@@ -126,8 +150,6 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
 				Coordinate[] coords = trianglePolygon.getCoordinates();
 				TriangleDT triangle = new TriangleDT(coords);
-			//	System.out.println(i);
-			//	triangle.toStringa();
 				triangles.add(i, triangle);
 				data = new Data(dd);
 				data.addValue(i);
@@ -193,7 +215,6 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 						
 			while(iterJ.hasNext()){
 				TriangleDT trian = (TriangleDT) iterJ.next();
-				//System.out.println(i);
 				if (trian!=null){
 					Object[] record = {new Integer(j),"", trian.typeBreakLine};
 					if (trian.haveBreakLine){
@@ -201,16 +222,12 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 						record[1] = "Y";
 						record[2] = trian.typeBreakLine;
 					}
-					//	triangles.getTriangle(j).toStringa();
-				
-				
 					Geometry triangle = getPolygon(trian);
 					m_TrianglesOut.addFeature(triangle, record);
 					j++;
 				}
 			}
 		}
-	//	System.out.println("AHOJ");
 		return !m_Task.isCanceled();
 
 		
@@ -220,7 +237,6 @@ public class TinWithFixedLinesAlgorithm extends GeoAlgorithm {
 
 			GeometryFactory gf = new GeometryFactory();
 			Coordinate[] coords = new Coordinate[4];
-			//triangle.toStringa();
 			coords[0] = (Coordinate) triangle.A;
 			coords[1] = (Coordinate) triangle.B;
 			coords[2] = (Coordinate) triangle.C;

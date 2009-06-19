@@ -1,24 +1,29 @@
-package es.unex.sextante.vectorTools.tinWithFixedLines;
-
-/*
- *    Geotools2 - OpenSource mapping toolkit
- *    http://geotools.org
- *    (C) 2008, Geotools Project Managment Committee (PMC)
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
  *    
- *    @author      Josef Bezdek
- *	  @version     %I%, %G%
- *    @since JDK1.3 
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
  */
+
+
+package es.unex.sextante.vectorTools.tinWithFixedLines;
 
 import java.awt.geom.GeneralPath;
 import java.io.Serializable;
@@ -35,17 +40,15 @@ public class TriangleDT implements Serializable {
 	public Coordinate A;
 	public Coordinate B;
 	public Coordinate C;
-//	public double[] key;
-//	public double[][] neighbour_idx = new double [3][2];
 	public boolean haveBreakLine = false;
 	public int typeBreakLine = -1;
+
 	/***************************************************************************
 	 * Constructor
 	 * 
 	 * @param T - triangle will be cloned
 	 * 
 	 */
-
 	public TriangleDT(TriangleDT T) {
 		A = T.A;
 		B = T.B;
@@ -61,28 +64,23 @@ public class TriangleDT implements Serializable {
 	 * @param  C - third vertex
 	 * 
 	 */
-
-
-
 	public TriangleDT(Coordinate A, Coordinate B, Coordinate C) {
 		this.A = A;
 		this.B = B;
 		this.C = C;
-	//	setKey();
 	}
+
 
 	public TriangleDT(Coordinate[] coords) {
 		this.A = new Coordinate(coords[0].x, coords[0].y, coords[0].z);
 		this.B = new Coordinate(coords[1].x, coords[1].y, coords[1].z);
 		this.C = new Coordinate(coords[2].x, coords[2].y, coords[2].z);
-	//	setKey();
 	}
 
 
 	/***************************************************************************
 	 * implicit Constructor
 	 */
-
 	public TriangleDT() {
 	}
 
@@ -95,17 +93,15 @@ public class TriangleDT implements Serializable {
 	 * @return boolean true - line intersect triangle false - line doesn't
 	 *         intersect triangle
 	 */
-
 	public boolean containsLine(LineString newL) {
-
 		Coordinate[] newPoints = { A, B, C, A };
 		CoordinateArraySequence newPointsTriangle = new CoordinateArraySequence(
 				newPoints);
 		LinearRing trianglesPoints = new LinearRing(newPointsTriangle,
 				new GeometryFactory());
-
 		return newL.crosses(trianglesPoints.convexHull());
 	}
+
 	
 	protected Coordinate getCentroid() {
 		return new Coordinate((A.x + B.x + C.x) / 3, (A.y + B.y + C.y) / 3);
@@ -121,16 +117,13 @@ public class TriangleDT implements Serializable {
 	 *         triangle doesn't contains point
 	 * 
 	 */
-
 	public boolean contains(Coordinate P) {
 		GeneralPath triangle = new GeneralPath();
-		
 		triangle.moveTo((float) A.x, (float) A.y);
 		triangle.lineTo((float) B.x, (float) B.y);
 		triangle.lineTo((float) C.x, (float) C.y);
 		triangle.lineTo((float) A.x, (float) A.y);
 		triangle.closePath();
-		//System.out.println("Je uvnitr + " +triangle.contains(P.x, P.y));
 		return triangle.contains(P.x, P.y);
 	}
 
@@ -143,13 +136,11 @@ public class TriangleDT implements Serializable {
 	 *         triangle doesn't contains point
 	 * 
 	 */
-
 	public boolean containsPointAsVertex(Coordinate P) {
 		if (A.equals2D(P) || B.equals2D(P) || C.equals2D(P))
 			return true;
 		else
 			return false;
-
 	}
 
 	/***************************************************************************
@@ -162,7 +153,6 @@ public class TriangleDT implements Serializable {
 	 *         triangles haven't one same point
 	 * 
 	 */
-
 	protected boolean containsOneSamePointWith(TriangleDT T) {
 		if (T.A.equals2D(A) || T.A.equals2D(B) || T.A.equals2D(C))
 			return true;
@@ -172,9 +162,9 @@ public class TriangleDT implements Serializable {
 			return true;
 		else
 			return false;
-
 	}
 
+	
 	/***************************************************************************
 	 * The method which testing two triangles, if the triangles have two same
 	 * points
@@ -185,7 +175,6 @@ public class TriangleDT implements Serializable {
 	 *         triangles haven't two same point
 	 * 
 	 */
-
 	public boolean containsTwoPoints(Coordinate P1, Coordinate P2) {
 		if ((A.equals2D(P1) || B.equals2D(P1) || C.equals2D(P1))
 				&& (A.equals2D(P2) || B.equals2D(P2) || C.equals2D(P2)))
@@ -198,14 +187,14 @@ public class TriangleDT implements Serializable {
 	 * 
 	 * 
 	 */
-
-	public void toStringa() {
+/*	public void toStringa() {
 		//return ("TriangleDT: " + A.toString() + B.toString() + C.toString()+" KEY "+key[0]+" "+key[1]+"  neighbour>"+neighbour_idx[0][0]+ " ");
 		System.out.println("--------------------------------------------------------------------");
 		  System.out.println("TDT: " + A.toString() + B.toString() + C.toString());
 		  System.out.println(" k:"+typeBreakLine);
 		System.out.println("--------------------------------------------------------------------"); 
-	}	 
+	}*/
+	
 	/***************************************************************************
 	 * The method which testing triangle, if the triangles is'nt line
 	 * 
@@ -213,7 +202,6 @@ public class TriangleDT implements Serializable {
 	 *         line
 	 * 
 	 */
-
 	protected boolean isTriangle() {
 		Coordinate[] newPoint = new Coordinate[4];
 		newPoint[0] = A;
@@ -222,10 +210,8 @@ public class TriangleDT implements Serializable {
 		newPoint[3] = A;
 		CoordinateArraySequence newPointsTriangle = new CoordinateArraySequence(
 				newPoint);
-
 		LinearRing trianglesPoints = new LinearRing(newPointsTriangle,
 				new GeometryFactory());
-
 		if (trianglesPoints.convexHull().getGeometryType() == "Polygon")
 			return true;
 		else
@@ -242,7 +228,6 @@ public class TriangleDT implements Serializable {
 	 *         aren't same
 	 * 
 	 */
-
 	public boolean compare(TriangleDT T) {
 		if ((T.A.equals2D(A) || T.A.equals2D(B) || T.A.equals2D(C))
 				&& (T.B.equals2D(A) || T.B.equals2D(B) || T.B.equals2D(C))

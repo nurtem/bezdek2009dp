@@ -2,6 +2,7 @@
 DelaunayAlgorithm.java
 Copyright (C) Victor Olaya
 
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -16,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+
 package es.unex.sextante.vectorTools.tin;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -101,15 +103,12 @@ public class TinAlgorithm extends GeoAlgorithm {
 		IFeatureIterator iter = m_Points.iterator();
 		
 		IFeature feature = iter.next();
-		//System.out.println(feature.getRecord().getValue(m_iClass).getClass().toString());
 		String classType = feature.getRecord().getValue(m_iClass).getClass().toString();
 		if (m_useGeometry_Z || (!(classType.compareTo("class java.lang.Integer")==0) && !(classType.compareTo("class java.lang.Double")==0) )){
 			iter = m_Points.iterator();
 			while(iter.hasNext() && setProgress(i, iShapeCount)){
 				feature = iter.next();
 				m_Coords[i] = new Coordinate(feature.getGeometry().getCoordinate());
-			//	System.out.println(m_Coords[i].z);
-			//	System.out.println(m_Coords[i].toString());
 				i++;
 			}
 			iter.close();
@@ -123,7 +122,6 @@ public class TinAlgorithm extends GeoAlgorithm {
 				
 				coord.z = Double.valueOf(Z);
 				m_Coords[i] = new Coordinate(coord);
-			//	System.out.println("aa"+m_Coords[i].toString());
 				i++;
 			}
 			iter.close();
@@ -139,7 +137,6 @@ public class TinAlgorithm extends GeoAlgorithm {
 			Object[] record = {new Integer(j),"",-1};
 			Geometry triangle = getPolygon(triangles[j]);
 			if (triangle != null){
-			//	System.out.println(triangle.toString());
 				
 				m_Triangles.addFeature(triangle, record);
 			}
@@ -157,7 +154,6 @@ public class TinAlgorithm extends GeoAlgorithm {
 		for (int i = 0; i < 3; i++) {
 			try{
 				coords[i] = m_Coords[triangle.ppp[i].i];
-			//	System.out.println(m_Coords[triangle.ppp[i].i]);
 			}catch (Exception e){
 				return null;
 			}

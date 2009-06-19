@@ -1,5 +1,28 @@
-package es.unex.sextante.vectorTools.linearIsolines;
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
+ *    
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
+ */
 
+package es.unex.sextante.vectorTools.linearIsolines;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,11 +35,9 @@ import org.geotools.index.rtree.PageStore;
 import org.geotools.index.rtree.RTree;
 import org.geotools.index.rtree.memory.MemoryPageStore;
 
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 import es.unex.sextante.additionalInfo.AdditionalInfoNumericalValue;
@@ -127,21 +148,13 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 				IFeature feature = iter.next();
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
 				IRecord record = feature.getRecord();
-				//System.out.println(record.getValue(2).toString());
 				if (((String)record.getValue(1)) == "Y")
 					breakLines.put(i, (Integer)record.getValue(2));
 				
 				triangles [i][0] = (Coordinate) trianglePolygon.getCoordinates()[0].clone();
 				triangles [i][1] = (Coordinate) trianglePolygon.getCoordinates()[1].clone();
 				triangles [i][2] = (Coordinate) trianglePolygon.getCoordinates()[2].clone();
-				/////////////
-	/*			
-					System.out.println(triangles[i][0]);
-					System.out.println(triangles[i][1]);
-					System.out.println(triangles[i][2]);
-				
-		*/	//	System.out.println((Integer)breakLines.get(i));
-		//////////////////		
+
 				data = new Data(dd);
 				data.addValue(i);
 				trianglesIndex.insert(trianglePolygon.getEnvelopeInternal(), data);
@@ -153,7 +166,6 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 				
 					if (scaleZ < Math.abs(diffZ/diffXY)){
 						scaleZ = Math.abs(diffZ/diffXY);
-						System.out.println("SCALE ---------"+scaleZ);
 					}
 				}	
 				setProgress(i,2*iShapeCount);
@@ -167,53 +179,43 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 		m_Triangles = null;
 		iter = null;
 
-			//double elevatedStep = 1;	
-			LinearContourLines isoLineFactory = new LinearContourLines(m_EquiDistance, m_ClusterTol);
+		LinearContourLines isoLineFactory = new LinearContourLines(m_EquiDistance, m_ClusterTol);
 			
 			
-			if (m_LoD != 0){
-				BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD);
-				while (bezierSurface.hasNext()){
-					//System.out.println("OCITAM");
-					setProgress(i++,2*iShapeCount);
-					Coordinate newTin[][] = bezierSurface.nextTrinagle();
-					isoLineFactory.countIsolines(newTin);
-				}	
-			}
-			else
-				isoLineFactory.countIsolines(triangles);
+		if (m_LoD != 0){
+			BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD);
+			while (bezierSurface.hasNext()){
+				setProgress(i++,2*iShapeCount);
+				Coordinate newTin[][] = bezierSurface.nextTrinagle();
+				isoLineFactory.countIsolines(newTin);
+			}	
+		}
+		else
+			isoLineFactory.countIsolines(triangles);
 				
-			ArrayList isolines = isoLineFactory.getIsolines();
-			Iterator iterIso = isolines.iterator();
-			int j=0;
-			for (int l=0; l < isolines.size(); l++){
-				Object o = isolines.get(l);
-				if (o != null){
-					
-					//	triangles.getTriangle(j).toStringa();
-					GeometryFactory gf = new GeometryFactory();
-					Iterator isoL = ((LinkedList)o).iterator();
-					Coordinate[] coords = new Coordinate[((LinkedList)o).size()];
-					int k = 0;
-					while(isoL.hasNext()){
-						coords[k] = (Coordinate)isoL.next();
-						k++;
-					}	
-					Object[] record = {new Integer(j),coords[0].z};
-					LineString isoline = gf.createLineString(coords);
-					m_Isolines.addFeature(isoline, record);
-					j++;
-							
-				}
+		ArrayList isolines = isoLineFactory.getIsolines();
+		Iterator iterIso = isolines.iterator();
+		int j=0;
+		for (int l=0; l < isolines.size(); l++){
+			Object o = isolines.get(l);
+			if (o != null){
+				GeometryFactory gf = new GeometryFactory();
+				Iterator isoL = ((LinkedList)o).iterator();
+				Coordinate[] coords = new Coordinate[((LinkedList)o).size()];
+				int k = 0;
+				while(isoL.hasNext()){
+					coords[k] = (Coordinate)isoL.next();
+					k++;
+				}	
+				Object[] record = {new Integer(j),coords[0].z};
+				LineString isoline = gf.createLineString(coords);
+				m_Isolines.addFeature(isoline, record);
+				j++;
+						
 			}
+		}
 			
-		
-		//	System.out.println("AHOJ");
 		return !m_Task.isCanceled();
-
-		
 	}	
-
-
 }
 

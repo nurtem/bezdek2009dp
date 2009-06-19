@@ -1,5 +1,29 @@
-package es.unex.sextante.vectorTools.bezierSurface;
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
+ *    
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
+ */
 
+
+package es.unex.sextante.vectorTools.bezierSurface;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,7 +76,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		setName(Sextante.getText( "TIN - Bezier Surface"));
 		setGroup(Sextante.getText("Herramientas_capas_puntos"));
 		setGeneratesUserDefinedRasterOutput(false);
-		String[] sDistance = {"0","1","2","3","4","5","6","7","8","9"};
+		String[] sDistance = {"1","2","3","4","5","6","7","8","9"};
 		
 		try {
 			m_Parameters.addInputVectorLayer(TIN,
@@ -104,21 +128,13 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 				IFeature feature = iter.next();
 				Polygon trianglePolygon = (Polygon) feature.getGeometry();
 				IRecord record = feature.getRecord();
-				//System.out.println(record.getValue(2).toString());
 				if (((String)record.getValue(1)) == "Y")
 					breakLines.put(i, (Integer)record.getValue(2));
 				
 				triangles [i][0] = (Coordinate) trianglePolygon.getCoordinates()[0].clone();
 				triangles [i][1] = (Coordinate) trianglePolygon.getCoordinates()[1].clone();
 				triangles [i][2] = (Coordinate) trianglePolygon.getCoordinates()[2].clone();
-				/////////////
-				
-			//		System.out.println(triangles[i][0]);
-			//		System.out.println(triangles[i][1]);
-			//		System.out.println(triangles[i][2]);
-				
-			//	System.out.println((Integer)breakLines.get(i));
-		//////////////////		
+
 				data = new Data(dd);
 				data.addValue(i);
 				trianglesIndex.insert(trianglePolygon.getEnvelopeInternal(), data);
@@ -130,7 +146,6 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 				
 					if (scaleZ < Math.abs(diffZ/diffXY)){
 						scaleZ = Math.abs(diffZ/diffXY);
-						System.out.println("MERITKO----------------------"+scaleZ);
 					}
 				}	
 				setProgress(i,2*iShapeCount);
@@ -141,11 +156,10 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		catch (Exception e){
 			e.printStackTrace(); 
 		}	
-		//scaleZ = 4.2;
-		//
+		
 		m_Triangles = null;
 		iter = null;
-		BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD);
+		BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD+1);
 		
 		
 		int indexOfInterpolatedTriangles = 0;

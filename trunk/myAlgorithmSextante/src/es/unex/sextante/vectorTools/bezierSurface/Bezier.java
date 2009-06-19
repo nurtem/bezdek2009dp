@@ -1,3 +1,27 @@
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
+ *    
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
+ */
+
 package es.unex.sextante.vectorTools.bezierSurface;
 
 import java.awt.geom.GeneralPath;
@@ -18,7 +42,12 @@ public class Bezier {
 	Coordinate b111 = null;
 	GeneralPath trianglePath = new GeneralPath();
 	
-	protected Bezier(Coordinate b300,Coordinate b030,Coordinate b003,Coordinate b210,Coordinate b120,Coordinate b021,Coordinate b012,Coordinate b102,Coordinate b201, Coordinate b111){
+	/************************************************************************
+	 * Constructor 
+	 * @param bxxx - control points of control mesh
+	 */
+	protected Bezier(Coordinate b300,Coordinate b030,Coordinate b003,Coordinate b210,Coordinate b120,
+			Coordinate b021,Coordinate b012,Coordinate b102,Coordinate b201, Coordinate b111){
 		this.b300 = b300;
 		this.b030 = b030;
 		this.b003 = b003;
@@ -34,7 +63,6 @@ public class Bezier {
 		trianglePath.lineTo( b003.x,  b003.y);
 		trianglePath.lineTo( b300.x,  b300.y);
 		trianglePath.closePath();
-		//System.out.println("Je uvnitr + " +triangle.contains(P.x, P.y));
 		
 	}
 	
@@ -60,7 +88,8 @@ public class Bezier {
 
 		return new Coordinate(x,y,z);
 	}
-	protected void toStringa(){
+
+/*	protected void toStringa(){
 		System.out.println("======================================");
 		System.out.println(b300.toString());
 		System.out.println(b030.toString());
@@ -76,7 +105,7 @@ public class Bezier {
 				System.out.println(b111.toString());
 			
 		System.out.println("======================================");
-	}
+	}*/
 	
 	/***************************************************************************
 	 * The method which testing, if the triangle contains the point

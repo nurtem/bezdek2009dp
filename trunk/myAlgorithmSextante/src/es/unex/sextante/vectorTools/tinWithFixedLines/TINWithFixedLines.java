@@ -1,25 +1,28 @@
-package es.unex.sextante.vectorTools.tinWithFixedLines;
-
-/*
- *    Geotools2 - OpenSource mapping toolkit
- *    http://geotools.org
- *    (C) 2008, Geotools Project Managment Committee (PMC)
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation;
- *    version 2.1 of the License.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+/****************************************************************************
+ *	Sextante - Geospatial analysis tools
+ *  www.sextantegis.com
+ *  (C) 2009
  *    
- *    @author      Josef Bezdek
- *	  @version     %I%, %G%
- *    @since JDK1.3 
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ * 	You should have received a copy of the GNU General Public License
+ *	along with this program; if not, write to the Free Software
+ *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ *    @author      	Josef Bezdek, ZCU Plzen
+ *	  @version     	1.0
+ *    @since 		JDK1.5 
  */
 
+package es.unex.sextante.vectorTools.tinWithFixedLines;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,18 +52,21 @@ public class TINWithFixedLines {
 	Data data = null;
 	DataDefinition dd = new DataDefinition("US-ASCII");
 
+	/********************************************************************************
+	 * Constructor
+	 * @param triangles - triangles of original TIN
+	 * @param trinaglesIdx - triangles index (RTree)
+	 * @param fixedLines - fixed lines 
+	 */
 	TINWithFixedLines (ArrayList triangles, RTree trianglesIdx, LinkedList fixedLines){
 		this.triangles = triangles;
 		this.trianglesIdx = trianglesIdx;
 		this.fixedLines = fixedLines;
 	}
 	
-	/***100
-	   * The private method for searching a triangle which are intersect by new hard line
-	   *
-	   * @param PointDT - coordinate of new hard line
-	   */			
-	
+	/***************************************************************************
+	 * The private method for searching a triangle which are intersect by new hard line
+	 */			
 	private LinkedList getTrianglesIntersectLine(){
 		int index = 0;
 		LinkedList trianglesToChange = new LinkedList();
@@ -74,17 +80,13 @@ public class TINWithFixedLines {
 		
 		try{
 			trianglesOverEnvelopeIdx = (List) trianglesIdx.search(newL.getEnvelopeInternal());
-		//	LinkedList trianglesOverEnvelope = new LinkedList();
-		//	System.out.println("JEEEEE TAAAM"+trianglesOverEnvelopeIdx.size());
 
 		Iterator iter = trianglesOverEnvelopeIdx.iterator();
 		while (iter.hasNext()){
 			index = (Integer)((Data) iter.next()).getValue(0);
 			
-		//	System.out.println(index);
 			if (triangles.get(index)!=null){
 				TriangleDT T = (TriangleDT) triangles.get(index);
-				//T.toStringa();
 				if (!containA&&(T.containsPointAsVertex(line.A))){
 					containA = true;
 					line.A.z = setZ(line.A,T);
@@ -129,7 +131,6 @@ public class TINWithFixedLines {
 		}
 		if ((containA == false)||(containB == false)){
 			try{
-			//	System.out.println("TAK TED SE TO NEPOVEDLO ==========´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´=====================");
 				int i = triangles.size();
 				Iterator iter = trianglesToChange.iterator();
 				while(iter.hasNext()){
@@ -144,10 +145,6 @@ public class TINWithFixedLines {
 			catch(Exception e){
 				e.printStackTrace();
 			}
-		//	System.out.println("CRACI NULL");
-		//	System.out.println(trianglesToChange.size());
-		//	System.out.println(containA);
-		//	System.out.println(containB);
 			
 			return null;
 			
@@ -157,6 +154,12 @@ public class TINWithFixedLines {
 		
 	}
 	
+	/********************************************************************************
+	 * Private function sets Z coordinate
+	 * @param A - coordinate of fixed line
+	 * @param T - triangle with corect elevation
+	 * @return value of Z coordinate of triangle
+	 */
 	private double setZ(Coordinate A, TriangleDT T){
 		if (T.A.equals2D(A))
 			return T.A.z;
@@ -167,15 +170,13 @@ public class TINWithFixedLines {
 		
 	}
 	
-	/***
-	   * The private method, which finds out if the line contains the point P
-	   *
-	   * @param PointDT - coordinates of the point P
-	   *
-	   * @return boolean - true : when the line contains the point P
-	   *                   false: when the line doesn't contain the point P
-	   *    
-       */		
+	/********************************************************************************
+	 * The private method, which finds out if the line contains the point P
+	 * @param line - line for testing
+	 * @param PointDT - coordinates of the point P
+	 * @return boolean - true : when the line contains the point P
+	 *                   false: when the line doesn't contain the point P
+	 */		
 	
 	private boolean lineContainsPoint(LineString line, Coordinate P){
 		Coordinate[] newPoint={P}; 
@@ -185,16 +186,13 @@ public class TINWithFixedLines {
 		return line.covers(newP);
 	}
 	
-	/***
-	   * The private method for testing, if the LinkedList contains point P
-	   *
-	   * @param LinkedList - List of existing points
-	   * @param PointDT - coordinates of the point P
-	   *
-	   * @return boolean - true : when the list contains the point P
-	   *                   false: when the list doesn't contain the point P
-	   *    
-       */		
+	/*********************************************************************************
+	 * The private method for testing, if the LinkedList contains point P
+	 * @param LinkedList - List of existing points
+	 * @param PointDT - coordinates of the point P
+	 * @return boolean - true : when the list contains the point P
+	 *                   false: when the list doesn't contain the point P
+     */		
 	
 	private boolean listContainsPoint(LinkedList points, Coordinate P){
 		Iterator iter = points.iterator();
@@ -205,17 +203,14 @@ public class TINWithFixedLines {
 		return false;
 	}
 	
-	/***
-	   * The private method for testing, if the LinkedList contains point P
-	   *
-	   * @param LinkedList - List of existing TIN triangles
-	   * @param PointDT A- coordinates of start point of line
-	   * @param PointDT B- coordinates of end point of line
-	   *
-	   * @return LinkedList - return List of point, which generate new TIN around hard line
-	   * 						without start and end point of hard line
-	   *    
-	   */		
+	/*********************************************************************************
+	 * The private method for testing, if the LinkedList contains point P
+	 * @param LinkedList - List of existing TIN triangles
+	 * @param PointDT A- coordinates of start point of line
+	 * @param PointDT B- coordinates of end point of line
+	 * @return LinkedList - return List of point, which generate new TIN around hard line
+	 * 						without start and end point of hard line
+	 */		
 	
 	private LinkedList getPoints(LinkedList trianglesT, Coordinate A, Coordinate B){
 		Iterator iter = trianglesT.iterator();
@@ -244,17 +239,14 @@ public class TINWithFixedLines {
 		return points;
 	}
 
-	/***
-	   * The private method for testing, if the old triangles contains new triangle
-	   *
-	   * @param TriangleDT - triangle for test
-	   * @param LinkedList - List of triangles of old triangulation,which will be deleted
-	   *
-	   * @return boolean - true : when the triangles contains the new triangle
-	   *                   false: when the triangles don't contains the new triangle
-	   *                       
-       */		
 	
+	/*************************************************************************************************
+	 * The private method for testing, if the old triangles contains new triangle
+	 * @param TriangleDT - triangle for test
+	 * @param LinkedList - List of triangles of old triangulation,which will be deleted
+	 * @return boolean - true : when the triangles contains the new triangle
+	 *                   false: when the triangles don't contains the new triangle
+	 */		
 	private boolean testIsInside(TriangleDT T, LinkedList trians){
 		Iterator iter = trians.iterator();
 		while (iter.hasNext()){			//testovani zda teziste noveho trojuhelnika je uvnitr zrusenych trojuhelniku
@@ -265,14 +257,18 @@ public class TINWithFixedLines {
 		return false;
 	}
 	
-	
-	public TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
+	/*************************************************************************************************
+	 * The private method gets tringle
+	 * @param triangle - triangle
+	 * @param pointTriangulated - triangulated points
+	 * @return trinagle
+	 */		
+	protected TriangleDT getTriangle(Triangle triangle, ArrayList<Coordinate> pointsTriangulated){
 		Coordinate[] coords = new Coordinate[3];
 
 		for (int i = 0; i < 3; i++) {
 			try{
 				coords[i] = (Coordinate)pointsTriangulated.get(triangle.ppp[i].i);
-			//	System.out.println(m_Coords[triangle.ppp[i].i]);
 			}catch (Exception e){
 				return null;
 			}
@@ -281,14 +277,10 @@ public class TINWithFixedLines {
 		return new TriangleDT(coords);
 	}
 	
-	/***
-	   * The static method for creating new triangles around the fixed lines in existing triangulation
-	   *
-	   * @param trianglesDT - DelaunayDataStore, triangles, which generate TIN
-	   * @param fixedLinesDT - List of fixed lines, which will be triangulated
-	   * 
-	   * @return LinkedList - list of new triangles, which generate TIN	
-	   */		
+	/************************************************************************************************
+	 * The method for creating new triangles around the fixed lines in existing triangulation
+	 * @return LinkedList - list of new triangles, which generate TIN	
+	 */		
 	
 	
 	public ArrayList countTIN(){
@@ -314,8 +306,6 @@ public class TINWithFixedLines {
 			leftPoints = new ArrayList();
 			rightPoints = new ArrayList();
 			line = (LineDT) iter.next();
-			System.out.println("LINEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-			System.out.println(line.toString());
 			trianglesToChange = getTrianglesIntersectLine();	// getting triangles which intersect fixed line
 			
 			
@@ -334,7 +324,6 @@ public class TINWithFixedLines {
 				while (it.hasNext()){			
 					P = (Coordinate)it.next();
 					yTrans = Math.cos(alfa)*P.y + Math.sin(alfa)*P.x;		// identity transformation
-					//xTrans = Math.cos(alfa)*P.x - Math.sin(alfa)*P.y;
 					if (yTrans>=yTransNullPoints-0.0000001){
 						leftPoints.add(new Coordinate(P.x,P.y,P.z));
 					}
@@ -353,7 +342,6 @@ public class TINWithFixedLines {
 					int index = 0;
 					while (it.hasNext()){
 						coordsLeft[index] = (Coordinate)it.next();
-					//	System.out.println(coordsLeft[index].toString());
 						index++;
 					}
 					
@@ -363,25 +351,18 @@ public class TINWithFixedLines {
 					
 					for (int j=0; j<leftTIN.length; j++){
 						TriangleDT T = getTriangle(leftTIN[j], leftPoints);
-						//System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						if (T!=null && T.isTriangle()){
-						//	T.toStringa();
-							
-								
 						if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
 									data.addValue(i);
-									//System.out.println("VSTUpuje>   "+i);
-									//System.out.println(T.getEnvelope().toString());
-									
 									trianglesIdx.insert(T.getEnvelope(), data);
 								}
 								catch(Exception e){
 									e.printStackTrace();
 								}
 								setTypeOfBreakLine(T);
-								T.toStringa();
+								
 								triangles.add(i, T);				//vlozeni do celkove triangulace
 								i++;
 							}
@@ -389,7 +370,6 @@ public class TINWithFixedLines {
 					}
 				}	
 				if (!rightPoints.isEmpty()){
-					//System.out.println("Line isn't empty");
 					rightPoints.add(new Coordinate(line.A.x, line.A.y, line.A.z));
 					rightPoints.add(new Coordinate(line.B.x, line.B.y, line.B.z));
 					Coordinate[] coordsRight = new Coordinate[rightPoints.size()];
@@ -397,7 +377,6 @@ public class TINWithFixedLines {
 					it = rightPoints.iterator();
 					while (it.hasNext()){
 						coordsRight[index] = (Coordinate)it.next();
-						//System.out.println(coordsRight[index].toString());
 						index++;
 					}
 					
@@ -407,61 +386,41 @@ public class TINWithFixedLines {
 					triangulation.triangulate();
 					rightTIN = triangulation.getTriangles();
 					for (int j=0; j<rightTIN.length; j++){
-					//	System.out.println("TROJUHEEEEEEEEEEEEEEEELNIK");
 						TriangleDT T = getTriangle(rightTIN[j], rightPoints);
 						if (T!=null && T.isTriangle()){
-						//	T.toStringa();
-						//	System.out.println("VYPISUJU ===================================");
-						//	System.out.println(line.toString());
 							
 							if (testIsInside(T, trianglesToChange)){
 								try{
 									data = new Data(dd);
 									data.addValue(i);
-									//
-								//	System.out.println("VSTUpuje>   "+i);
-								//	System.out.println(T.getEnvelope().toString());
 									trianglesIdx.insert(T.getEnvelope(), data);
 								}
 								catch(Exception e){
 									e.printStackTrace();
 								}
 								setTypeOfBreakLine(T);
-								T.toStringa();
+								
 								triangles.add(i, T);				//vlozeni do celkove triangulace
 								i++;
 							}
 						}
 					}
 				}
-				
-				/// create new triangles
-				
-				
-			
-					//test newlz formed triangles if inside shape
-			//	testAndAddTrianglesToTIN(leftTIN, leftPoints, rightTIN, rightPoints, trianglesToChange, line);
 			}
 		}
 		return triangles;
 	}
 	
+	/*************************************************************************************************
+	 * The protected method seting attribute type of break line in triangle
+	 * @param Triangle - triangle to sets
+	 */		
 	protected void setTypeOfBreakLine (TriangleDT T){
-		//System.out.println("nastavuju hodnotu HB");
-		System.out.println("SETTYPEOF BREAL LINE");
 		T.normalizePolygon();
 		Iterator iterFixedLines = fixedLines.iterator();
 		while (iterFixedLines.hasNext()){
 			
-			
-		if ((T.A.x == -768509)||(T.A.x == -768509)||(T.A.x == -768509)){
-			System.out.println("POOOOOOOOOOOOOOOOOOOOOOOOOOOOOZPPP");
-			T.toStringa();
-		}
-			
 			LineDT line = (LineDT) iterFixedLines.next();
-			//System.out.println(line.toString());
-			//System.out.println(" ------------------------------");
 			if ((T.A.equals2D(line.A)&&T.B.equals2D(line.B))||(T.A.equals2D(line.B)&&T.B.equals2D(line.A))){
 				System.out.println("prvni");
 				if (!T.haveBreakLine){
@@ -530,12 +489,5 @@ public class TINWithFixedLines {
 					}
 				}	
 			}	
-
-		if ((T.A.x == -768509)||(T.A.x == -768509)||(T.A.x == -768509)){
-			System.out.println("POOOOOOOOOOOOOOOOOOOOOOOOOOOOOZPPP");
-			
-		}
-		T.toStringa();
-		
 	}
 }
