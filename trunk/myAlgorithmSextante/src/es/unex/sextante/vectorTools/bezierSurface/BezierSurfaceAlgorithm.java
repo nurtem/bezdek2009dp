@@ -58,10 +58,12 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 	public static final String TIN = "TIN";
 	public static final String TINB = "TINB";
 	public static final String LoD = "LoD";
+	public static final String Smooth = "Smooth";
 	
 	private IVectorLayer m_Triangles;
 	private IVectorLayer m_TrianglesOut;
 	private int m_LoD;
+	private double m_Smooth;
 	
 	private Data data;
 	private DataDefinition dd = new DataDefinition("US-ASCII"); 
@@ -87,6 +89,12 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 			m_Parameters.addSelection(LoD,
 					Sextante.getText( "   Level of Detail:"),
 					sDistance);
+			m_Parameters.addNumericalValue(Smooth,
+					Sextante.getText( "   Smoothing coeficient (0.1 - 1)"),
+					AdditionalInfoNumericalValue.NUMERICAL_VALUE_DOUBLE,
+					1,
+					0.1,
+					1);
 			
 			addOutputVectorLayer(TINB,
 											Sextante.getText( "Resultado"),
@@ -106,6 +114,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		
 		m_Triangles = m_Parameters.getParameterValueAsVectorLayer(TIN);
 		m_LoD = m_Parameters.getParameterValueAsInt(LoD);
+		m_Smooth = m_Parameters.getParameterValueAsDouble(Smooth);
 		
 		Class types[] = {Integer.class, String.class, Integer.class};
 		String sNames[] = {"ID", "HardLines", "type"};
@@ -159,7 +168,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 		
 		m_Triangles = null;
 		iter = null;
-		BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD+1);
+		BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ*m_Smooth, m_LoD+1);
 		
 		
 		int indexOfInterpolatedTriangles = 0;
@@ -172,6 +181,7 @@ public class BezierSurfaceAlgorithm extends GeoAlgorithm {
 				Coordinate[] coords = new Coordinate[4];
 				for (int m=0; m<3; m++){
 					coords[m] = newTin[l][m];
+					System.out.println(coords[m]);
 				}
 				coords[3] = newTin[l][0];
 				LinearRing ring = gf.createLinearRing(coords);

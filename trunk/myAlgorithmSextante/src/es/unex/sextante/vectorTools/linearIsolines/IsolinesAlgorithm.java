@@ -60,12 +60,14 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 	public static final String EQUIDISTANCE = "EQUIDISTANCE";
 	public static final String LoD = "LoD";
 	public static final String ClusterTol = "ClusterTol";
+	public static final String Smooth = "Smooth";
 	
 	private IVectorLayer m_Triangles;
 	private IVectorLayer m_Isolines;
 	private double m_EquiDistance;
 	private int m_LoD;
 	private double m_ClusterTol;
+	private double m_Smooth;
 	
 	private Data data;
 	private DataDefinition dd = new DataDefinition("US-ASCII"); 
@@ -97,7 +99,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 					Double.MAX_VALUE);
 			
 			m_Parameters.addSelection(LoD,
-					Sextante.getText( "   Level of smooting"),
+					Sextante.getText( "   Level of Detail"),
 					sDistance);
 
 			m_Parameters.addNumericalValue(ClusterTol,
@@ -106,6 +108,13 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 					0.001,
 					0,
 					Double.MAX_VALUE);
+			m_Parameters.addNumericalValue(Smooth,
+					Sextante.getText( "   Smoothing coeficient (0.1 - 1)"),
+					AdditionalInfoNumericalValue.NUMERICAL_VALUE_DOUBLE,
+					1,
+					0.1,
+					1);
+
 			
 			addOutputVectorLayer(ISOLINES,
 											Sextante.getText( "Resultado"),
@@ -127,6 +136,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 		m_EquiDistance = m_Parameters.getParameterValueAsDouble(EQUIDISTANCE);
 		m_LoD = m_Parameters.getParameterValueAsInt(LoD);
 		m_ClusterTol = m_Parameters.getParameterValueAsDouble(ClusterTol);
+		m_Smooth = m_Parameters.getParameterValueAsDouble(Smooth);
 		
 		Class types[] = {Integer.class, Double.class};
 		String sNames[] = {"ID","Value"};
@@ -183,7 +193,7 @@ public class IsolinesAlgorithm extends GeoAlgorithm {
 			
 			
 		if (m_LoD != 0){
-			BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ, m_LoD);
+			BezierSurface bezierSurface = new BezierSurface(triangles, trianglesIndex, breakLines, scaleZ*m_Smooth, m_LoD);
 			while (bezierSurface.hasNext()){
 				setProgress(i++,2*iShapeCount);
 				Coordinate newTin[][] = bezierSurface.nextTrinagle();

@@ -58,10 +58,10 @@ public class Bezier {
 		this.b210 = b210;
 		this.b201 = b201;
 		this.b111 = b111;
-		trianglePath.moveTo( b300.x,  b300.y);
-		trianglePath.lineTo( b030.x,  b030.y);
-		trianglePath.lineTo( b003.x,  b003.y);
-		trianglePath.lineTo( b300.x,  b300.y);
+		trianglePath.moveTo( (float)b300.x, (float) b300.y);
+		trianglePath.lineTo((float) b030.x, (float) b030.y);
+		trianglePath.lineTo((float) b003.x, (float) b003.y);
+		trianglePath.lineTo((float) b300.x, (float) b300.y);
 		trianglePath.closePath();
 		
 	}
@@ -89,7 +89,7 @@ public class Bezier {
 		return new Coordinate(x,y,z);
 	}
 
-/*	protected void toStringa(){
+	protected void printToConsole(){
 		System.out.println("======================================");
 		System.out.println(b300.toString());
 		System.out.println(b030.toString());
@@ -105,7 +105,7 @@ public class Bezier {
 				System.out.println(b111.toString());
 			
 		System.out.println("======================================");
-	}*/
+	}
 	
 	/***************************************************************************
 	 * The method which testing, if the triangle contains the point

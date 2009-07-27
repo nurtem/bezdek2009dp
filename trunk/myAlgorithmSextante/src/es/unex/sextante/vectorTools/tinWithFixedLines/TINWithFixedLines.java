@@ -58,7 +58,7 @@ public class TINWithFixedLines {
 	 * @param trinaglesIdx - triangles index (RTree)
 	 * @param fixedLines - fixed lines 
 	 */
-	TINWithFixedLines (ArrayList triangles, RTree trianglesIdx, LinkedList fixedLines){
+	public TINWithFixedLines (ArrayList triangles, RTree trianglesIdx, LinkedList fixedLines){
 		this.triangles = triangles;
 		this.trianglesIdx = trianglesIdx;
 		this.fixedLines = fixedLines;
@@ -413,7 +413,7 @@ public class TINWithFixedLines {
 	
 	/*************************************************************************************************
 	 * The protected method seting attribute type of break line in triangle
-	 * @param Triangle - triangle to sets
+	 * @param Triangle - triangle to setse
 	 */		
 	protected void setTypeOfBreakLine (TriangleDT T){
 		T.normalizePolygon();
@@ -421,73 +421,75 @@ public class TINWithFixedLines {
 		while (iterFixedLines.hasNext()){
 			
 			LineDT line = (LineDT) iterFixedLines.next();
-			if ((T.A.equals2D(line.A)&&T.B.equals2D(line.B))||(T.A.equals2D(line.B)&&T.B.equals2D(line.A))){
-				System.out.println("prvni");
-				if (!T.haveBreakLine){
-					T.typeBreakLine = 0;
-					T.haveBreakLine = true;
-				}
-				else{
-					if (T.typeBreakLine == 1){
-						T.typeBreakLine = 4;
-					}
-					else{
-						if (T.typeBreakLine == 2){
-							T.typeBreakLine = 3;	
-						}
-						else{
-							if (T.typeBreakLine == 5){
-								T.typeBreakLine = 6;
-							}
-						}
-					}
-				}
-			}
-			else
-				if ((T.B.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.B.equals2D(line.B))){
-					System.out.println("druhy");
+			if (line.isHardBreakLine){
+				if ((T.A.equals2D(line.A)&&T.B.equals2D(line.B))||(T.A.equals2D(line.B)&&T.B.equals2D(line.A))){
+					//System.out.println("prvni");
 					if (!T.haveBreakLine){
-						T.typeBreakLine = 1;
+						T.typeBreakLine = 0;
 						T.haveBreakLine = true;
 					}
 					else{
-						if (T.typeBreakLine == 0){
+						if (T.typeBreakLine == 1){
 							T.typeBreakLine = 4;
 						}
 						else{
 							if (T.typeBreakLine == 2){
-								T.typeBreakLine = 5;	
+								T.typeBreakLine = 3;	
 							}
 							else{
-								if (T.typeBreakLine == 3)
+								if (T.typeBreakLine == 5){
 									T.typeBreakLine = 6;
+								}
 							}
-						}	
+						}
 					}
 				}
-				else{
-					if ((T.A.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.A.equals2D(line.B))){
-						System.out.println("treti");
+				else
+					if ((T.B.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.B.equals2D(line.B))){
+						//	System.out.println("druhy");
 						if (!T.haveBreakLine){
-							T.typeBreakLine = 2;
+							T.typeBreakLine = 1;
 							T.haveBreakLine = true;
 						}
 						else{
 							if (T.typeBreakLine == 0){
-								T.typeBreakLine = 3;
-							}
+								T.typeBreakLine = 4;
+							}	
 							else{
-								if (T.typeBreakLine == 1){
+								if (T.typeBreakLine == 2){
 									T.typeBreakLine = 5;	
 								}
 								else{
-									if (T.typeBreakLine == 4)
+									if (T.typeBreakLine == 3)
 										T.typeBreakLine = 6;
+								}
+							}	
+						}
+					}
+					else{
+						if ((T.A.equals2D(line.A)&&T.C.equals2D(line.B))||(T.C.equals2D(line.A)&&T.A.equals2D(line.B))){
+							//	System.out.println("treti");
+							if (!T.haveBreakLine){
+								T.typeBreakLine = 2;
+								T.haveBreakLine = true;
+							}
+							else{
+								if (T.typeBreakLine == 0){
+									T.typeBreakLine = 3;
+								}
+								else{
+									if (T.typeBreakLine == 1){
+										T.typeBreakLine = 5;	
+									}
+									else{
+										if (T.typeBreakLine == 4)
+											T.typeBreakLine = 6;
+									}
 								}
 							}
 						}
-					}
+					}	
 				}	
-			}	
+			}
 	}
 }

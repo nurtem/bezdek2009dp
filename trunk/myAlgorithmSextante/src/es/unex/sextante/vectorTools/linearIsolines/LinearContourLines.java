@@ -46,7 +46,7 @@ public class LinearContourLines {
 	 * @param equidistance - equidistance between isolines
 	 * @param clusterTol - minimum diference in X,Y coordinates between points where the points are indetical 
 	 */
-	LinearContourLines (double equiDistance, double clusterTol){
+	public LinearContourLines (double equiDistance, double clusterTol){
 		elevatedStep = equiDistance;
 		int coeficient = 1;
 		while (clusterTol<1){
@@ -92,8 +92,11 @@ public class LinearContourLines {
 			elev = ((int)(minZ/elevatedStep+1))*elevatedStep;
 		else
 			elev = ((int)(minZ/elevatedStep))*elevatedStep;
-						
-		while (elev <= maxZ){
+		
+		if (elev <= minZ)
+			elev += elevatedStep;
+	
+		while (elev < maxZ){
 			if (((triangle[0].z<elev)&(triangle[1].z>elev))||((triangle[0].z>elev)&(triangle[1].z<elev))){
 				startIZO = solveLinearInterpolation(triangle[0], triangle[1], elev);
 			}
@@ -109,6 +112,7 @@ public class LinearContourLines {
 				if (stopIZO == null)
 					stopIZO = solveLinearInterpolation(triangle[1], triangle[2], elev);
 			}
+			
 			startIZO.x = Math.round(startIZO.x*clusterTol)/clusterTol;
 			startIZO.y = Math.round(startIZO.y*clusterTol)/clusterTol;
 			stopIZO.x = Math.round(stopIZO.x*clusterTol)/clusterTol;
@@ -119,7 +123,7 @@ public class LinearContourLines {
 				
 			startIZO = null;
 			stopIZO = null;
-			elev = elev + elevatedStep;
+			elev += elevatedStep;
 				
 		}
 				

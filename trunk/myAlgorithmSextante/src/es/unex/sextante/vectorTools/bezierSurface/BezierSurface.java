@@ -84,7 +84,8 @@ public class BezierSurface {
 			coord[2] = C;
 			this.typeOfBreakLine = typeOfBreakLine;
 		}
-		void toStringa(){
+
+		void printToConsole(){
 			System.out.println(coord[0]);
 			System.out.println(coord[1]);
 			System.out.println(coord[2]);  
@@ -133,6 +134,7 @@ public class BezierSurface {
 	public Coordinate[][] nextTrinagle(){
 		int indexOfInterpolatedTriangles = 0;
 		Bezier2 newBezierTriangles = new Bezier2(triangles[index]);
+		
 		newBezierTriangles.setNormalVector(searchVectors(newBezierTriangles,newBezierTriangles.b300, index),
 											   searchVectors(newBezierTriangles,newBezierTriangles.b030, index),
 											   searchVectors(newBezierTriangles,newBezierTriangles.b003, index)); 
@@ -349,10 +351,10 @@ public class BezierSurface {
 				break;							
 			}
 			case 9:{
-				byte[] tIndex = {0,0,0, 0,0,2, 2,0,0, 0,0,0, 0,0,0, 0,0,2, 0,0,2, 0,0,2,0,0,2,
+				byte[] tIndex = {0,0,0, 0,0,2,  0,0,0, 0,0,0, 0,0,2, 0,0,2, 0,0,2, 0,0,2,
 									 0,0,0, 0,0,0, 0,0,0, 0,0,0,
 									 0,0,0, 0,0,0, 0,0,0, 0,0,0,
-									 0,0,0, 0,0,0, 0,0,0, 
+									 0,0,0, 0,0,0, 0,0,0, 0,0,0, 
 									 0,0,0, 0,0,0, 0,0,0, 
 									 0,0,0, 0,0,0, 0,0,0, 
 									 0,0,0, 0,0,0, 0,0,0, 0,0,0,
@@ -363,43 +365,86 @@ public class BezierSurface {
 				//two barycentric coordinates for one trianIndex
 				float[][] bCoor = {			{0,0},{1/9F,0},{0, 1/6F},
 											{0,0},{0,1/6F},{8/9F,0},
-						
-											{8/9F,0},{0,1/3F},{0,1/6F},
-											{1/9F,0},{1/18F,1/6F},{0,1/6F},
-											{0,1/3F},{1/18F,1/6F},{0,1/6F},
+										//	{0,0}, {0,0}, {0,0}, 
+											{0,1/6F}, {1/9F,0}, {1/9F,1/6F},
+											{0,1/6F}, {0, 1/3F}, {1/9F,1/6F},
 											{0,1/3F},{1/9F,1/3F},{5/9F,1/3F},
 											{0,2/3F},{1/9F,1/3F},{5/9F,1/3F},
 											{0,2/3F},{1/9F,2/3F},{2/9F,2/3F},
 											{0,1},{1/9F,2/3F},{2/9F,2/3F},
 											
-											{1/9F,0},{2/9F,0},{1/18F,1/6F},
-											{2/9F,0},{0,1/3F},{1/18F,1/6F},
-											{2/9F,0},{3/9F,0},{3/18F,1/6F},
-											{3/9F,0},{1/9F,1/3F},{3/18F,1/6F},
-											{3/9F,0},{4/9F,0},{5/18F,1/6F},
-											{4/9F,0},{2/9F,1/3F},{5/18F,1/6F},
-											{4/9F,0},{5/9F,0},{7/18F,1/6F},
-											{5/9F,0},{3/9F,1/3F},{7/18F,1/6F},
-											{5/9F,0},{6/9F,0},{9/18F,1/6F},
-											{6/9F,0},{4/9F,1/3F},{9/18F,1/6F},
-											{6/9F,0},{7/9F,0},{11/18F,1/6F},
-											{7/9F,0},{5/9F,1/3F},{11/18F,1/6F},
-											{7/9F,0},{8/9F,0},{13/18F,1/6F},
-											{8/9F,0},{6/9F,1/3F},{13/18F,1/6F},
+											
+											{1/9F,0},{2/9F,0},{1/9F,1/6F},
+											{2/9F,1/6F},{2/9F,0},{1/9F,1/6F},
+											{2/9F,0},{3/9F,0},{2/9F,1/6F},
+											{3/9F,1/6F},{3/9F,0},{2/9F,1/6F},
+											{3/9F,0},{4/9F,0},{3/9F,1/6F},
+											{4/9F,1/6F},{4/9F,0},{3/9F,1/6F},
+											{4/9F,0},{5/9F,0},{4/9F,1/6F},
+											{5/9F,1/6F},{5/9F,0},{4/9F,1/6F},
+											{5/9F,0},{6/9F,0},{5/9F,1/6F},
+											{6/9F,1/6F},{6/9F,0},{5/9F,1/6F},
+											{6/9F,0},{7/9F,0},{6/9F,1/6F},
+											{7/9F,1/6F},{7/9F,0},{6/9F,1/6F},
+											{7/9F,0},{8/9F,0},{7/9F,1/6F},
+											//{8/9F,1/6F},{8/9F,0},{7/9F,1/6F},
 											
 											
-											{1/9F,1/3F},{3/18F,1/6F},{0,1/3F},
-											{3/18F,1/6F},{2/9F,0},{0,1/3F},
-											{2/9F,1/3F},{5/18F,1/6F},{1/9F,1/3F},
-											{5/18F,1/6F},{3/9F,0},{1/9F,1/3F},
-											{3/9F,1/3F},{7/18F,1/6F},{2/9F,1/3F},
-											{7/18F,1/6F},{4/9F,0},{2/9F,1/3F},
-											{4/9F,1/3F},{9/18F,1/6F},{3/9F,1/3F},
-											{9/18F,1/6F},{5/9F,0},{3/9F,1/3F},
-											{5/9F,1/3F},{11/18F,1/6F},{4/9F,1/3F},
-											{11/18F,1/6F},{6/9F,0},{4/9F,1/3F},
-											{6/9F,1/3F},{13/18F,1/6F},{5/9F,1/3F},
-											{13/18F,1/6F},{7/9F,0},{5/9F,1/3F},
+											
+											
+										//	{0,0}, {0,0}, {0,0}, 
+
+											//{0,0}, {0,0}, {0,0}, 
+											
+											{1/9F,1/3F},{1/9F,1/6F},{0,1/3F},
+											{1/9F,1/3F},{1/9F,1/6F},{2/9F,1/6F},
+											
+											{2/9F,1/3F},{2/9F,1/6F},{1/9F,1/3F},
+											{2/9F,1/3F},{2/9F,1/6F},{3/9F,1/6F},
+											
+											{3/9F,1/3F},{3/9F,1/6F},{2/9F,1/3F},
+											{3/9F,1/3F},{3/9F,1/6F},{4/9F,1/6F},
+											
+											{4/9F,1/3F},{4/9F,1/6F},{3/9F,1/3F},
+											{4/9F,1/3F},{4/9F,1/6F},{5/9F,1/6F},
+											
+											{5/9F,1/3F},{5/9F,1/6F},{4/9F,1/3F},
+											{5/9F,1/3F},{5/9F,1/6F},{6/9F,1/6F},
+											
+											{6/9F,1/3F},{6/9F,1/6F},{5/9F,1/3F},
+											{6/9F,1/3F},{6/9F,1/6F},{7/9F,1/6F},
+											
+											{6/9F,1/3F},{15/18F,1/6F},{7/9F,1/6F},
+											{8/9F,0},{15/18F,1/6F},{7/9F,1/6F},
+											
+											//{1/9F,0},{2/9F,0},{1/18F,1/6F},
+											//{2/9F,0},{0,1/3F},{1/18F,1/6F},
+											//{2/9F,0},{3/9F,0},{3/18F,1/6F},
+										//	{3/9F,0},{1/9F,1/3F},{3/18F,1/6F},
+											//{3/9F,0},{4/9F,0},{5/18F,1/6F},
+											//{4/9F,0},{2/9F,1/3F},{5/18F,1/6F},
+											//{4/9F,0},{5/9F,0},{7/18F,1/6F},
+											//{5/9F,0},{3/9F,1/3F},{7/18F,1/6F},
+											//{5/9F,0},{6/9F,0},{9/18F,1/6F},
+											//{6/9F,0},{4/9F,1/3F},{9/18F,1/6F},
+											//{6/9F,0},{7/9F,0},{11/18F,1/6F},
+											//{7/9F,0},{5/9F,1/3F},{11/18F,1/6F},
+											//{7/9F,0},{8/9F,0},{13/18F,1/6F},
+										//	{8/9F,0},{6/9F,1/3F},{13/18F,1/6F},
+											
+											
+											//{1/9F,1/3F},{3/18F,1/6F},{0,1/3F},
+											//{3/18F,1/6F},{2/9F,0},{0,1/3F},
+											//{2/9F,1/3F},{5/18F,1/6F},{1/9F,1/3F},
+											//{5/18F,1/6F},{3/9F,0},{1/9F,1/3F},
+											//{3/9F,1/3F},{7/18F,1/6F},{2/9F,1/3F},
+											//{7/18F,1/6F},{4/9F,0},{2/9F,1/3F},
+											//{4/9F,1/3F},{9/18F,1/6F},{3/9F,1/3F},
+											//{9/18F,1/6F},{5/9F,0},{3/9F,1/3F},
+											//{5/9F,1/3F},{11/18F,1/6F},{4/9F,1/3F},
+											//{11/18F,1/6F},{6/9F,0},{4/9F,1/3F},
+											//{6/9F,1/3F},{13/18F,1/6F},{5/9F,1/3F},
+											//{13/18F,1/6F},{7/9F,0},{5/9F,1/3F},
 											
 											
 											{2/9F,1/3F},{0,2/3F},{1/9F,1/3F},
@@ -504,7 +549,7 @@ public class BezierSurface {
 	 */
 	private LinkedList searchVectors(Bezier2 bezierT, Coordinate P, int indexOfBezierT){
 		LinkedList vectors = new LinkedList();
-		
+		//System.out.println();
 		List listOfTrianglesIndex = null;
 		try{
 			listOfTrianglesIndex  = trianglesIndex.search(new Envelope(P));
@@ -527,10 +572,14 @@ public class BezierSurface {
 							Coordinate v1 = Bezier2.setVector(P,TT[1]);
 							Coordinate v2 = Bezier2.setVector(P,TT[2]);
 							double scalar = Bezier2.countScalarProduct(v1,v2);
-							double alfa = Math.acos(scalar/(Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2)));
+							double scalarJ = (Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2));
+							double alfa;
+							if (Math.abs(scalar) < Math.abs(scalarJ))
+								alfa = Math.acos(scalar/scalarJ);
+							else
+								alfa = 1;
 							Coordinate normal = Bezier2.setNormalVector(v1,v2);
 							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
-						
 							break;
 						}
 						case 'B':{
@@ -539,7 +588,12 @@ public class BezierSurface {
 							Coordinate v1 = Bezier2.setVector(P,TT[0]);
 							Coordinate v2 = Bezier2.setVector(P,TT[2]);
 							double scalar = Bezier2.countScalarProduct(v1,v2);
-							double alfa = Math.acos(scalar/(Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2)));
+							double scalarJ = (Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2));
+							double alfa;
+							if (Math.abs(scalar) < Math.abs(scalarJ))
+								alfa = Math.acos(scalar/scalarJ);
+							else
+								alfa = 1;
 							Coordinate normal = Bezier2.setNormalVector(v1,v2);
 							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
 							break;
@@ -550,10 +604,15 @@ public class BezierSurface {
 							Coordinate v1 = Bezier2.setVector(P,TT[0]);
 							Coordinate v2 = Bezier2.setVector(P,TT[1]);
 							double scalar = Bezier2.countScalarProduct(v1,v2);
-							double alfa = Math.acos(scalar/(Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2)));
+							double scalarJ = (Bezier2.countScalarProduct(v1,v1)*Bezier2.countScalarProduct(v2,v2));
+							double alfa;
+							if (Math.abs(scalar) < Math.abs(scalarJ))
+								alfa = Math.acos(scalar/scalarJ);
+							else
+								alfa = 1;
 							Coordinate normal = Bezier2.setNormalVector(v1,v2);
 							vectors.add(new Coordinate(normal.x*alfa, normal.y*alfa, normal.z*alfa));
-						}				
+							}				
 					}
 				if (haveBreakLine){
 					testingBreakLine = false;

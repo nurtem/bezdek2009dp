@@ -154,7 +154,7 @@ class Bezier2 {
 	 */
 	private static Coordinate countVector(LinkedList list, Coordinate P){
 		Iterator iter = list.iterator();
-		double koeficient = 1D;
+		//double koeficient = 1D; 
 		double sumX = 0;
 		double sumY = 0;
 		double sumZ = 0;
@@ -165,7 +165,7 @@ class Bezier2 {
 			sumZ += X.z;
 		}
 		double sum = Math.sqrt(Math.pow(sumX,2)+Math.pow(sumY, 2)+Math.pow(sumZ, 2));
-		return new Coordinate((sumX/sum)*koeficient, (sumY/sum)*koeficient, (sumZ/sum)*koeficient);
+		return new Coordinate((sumX/sum), (sumY/sum), (sumZ/sum));
 	}
 	
 	/******************************************************************
@@ -585,8 +585,8 @@ class Bezier2 {
 	/******************************************************************
 	 * The method to print Bezier triangle to console 
 	 */
-/*	protected void toStringa(){
-		System.out.println("======================================");
+	protected void printToConsole(){
+		System.out.println("=========MACRO TRIANGLE=============================");
 		System.out.println(b300.toString());
 		System.out.println(b030.toString());
 		System.out.println(b003.toString());
@@ -608,7 +608,7 @@ class Bezier2 {
 		}	
 		System.out.println("======================================");
 	}
-	*/
+	
 
 	/************************************************************************
 	 * The protected method for getting envelope of triangle
