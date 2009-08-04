@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="net.refractions.udig.project.ui.tool">
+      <actionTool
+            categoryId="net.refractions.udig.ui.dem"
+            class="net.refractions.udig.dem.DEMTool"
+            icon="Icons/ico.gif"
+            id="net.refractions.udig.dem.ui.actionTool10"
+            name="DEM"
+            onToolbar="true">
+      </actionTool>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+</plugin>
