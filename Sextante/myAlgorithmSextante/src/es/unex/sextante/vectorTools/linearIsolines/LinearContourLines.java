@@ -51,9 +51,10 @@ public class LinearContourLines {
 		int coeficient = 1;
 		while (clusterTol<1){
 			coeficient *= 10;
-			clusterTol *= coeficient;
+			clusterTol *= 10;
+			//System.out.println(clusterTol);
 		}
-		this.clusterTol = coeficient;
+		this.clusterTol = coeficient*10;
 		finalIsolines = new ArrayList();
 		treeIndex = new TreeMap<Integer, BinaryTree>();
 	}
